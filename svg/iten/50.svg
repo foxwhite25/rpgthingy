@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 300" width="310" height="300">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #949494 } 
+		.shp1 { fill: #7c7c7c } 
+		.shp2 { fill: #ababab } 
+		.shp3 { fill: #c9c9c9 } 
+		.shp4 { fill: #bbbbbb } 
+		.shp5 { fill: #ae9915 } 
+		.shp6 { fill: #e5cc36 } 
+	</style>
+	<path id="Layer" class="shp0" d="M130 300L46 288L34 144L119 214L202 288L130 300Z" />
+	<path id="Layer" class="shp1" d="M10 147.5L22 120L34 144L46 288L0.5 189L10 147.5Z" />
+	<path id="Layer" class="shp2" d="M202 84L34 144L106 204L202 288L250 180L202 84Z" />
+	<path id="Layer" class="shp3" d="M310 60L274 0L202 84L250 180L310 144L310 60Z" />
+	<path id="Layer" class="shp4" d="M94 0L29 78L22 120L34 144L202 84L274 0L94 0Z" />
+	<path id="Layer" class="shp5" d="M276 35L262 45.6L274 84L286 67.2L286 45.6L280.5 35.5L276 35Z" />
+	<path id="Layer" class="shp6" d="M274 84L274 54L286 48L286 72L274 84Z" />
+	<path id="Layer" class="shp6" d="M274 54L262 45.6L274 32.5L280.5 35.5L286 45.6L286 48L274 54Z" />
+	<path id="Layer" class="shp5" d="M106 18L82 48L70 66L100 54L142 36L178 42L190 30L178 12L130 0L106 18Z" />
+	<path id="Layer" class="shp6" d="M142 24L130 0L178 12L190 30L178 42L142 24Z" />
+	<path id="Layer" class="shp5" d="M10 132L22 120L34 144L35 155.5L10 168L10 132Z" />
+	<path id="Layer" class="shp6" d="M22 120L10 132L34 144L22 120Z" />
+	<path id="Layer" class="shp5" d="M184.29 268.7L192.77 254L169.59 260.21L161.11 274.91L175.8 283.39L187.39 280.29L184.29 268.7Z" />
+	<path id="Layer" class="shp5" d="M187.39 280.29L184.29 268.7L161.11 274.91L175.8 283.39L187.39 280.29Z" />
+	<path id="Layer" class="shp6" d="M184.29 268.7L192.77 254L195.88 265.59L187.39 280.29L184.29 268.7Z" />
+	<path id="Layer" class="shp6" d="M155 165L143 156.6L177 146.5L176 153L155 165Z" />
+	<path id="Layer" class="shp5" d="M155 165L135 151L154 192L160 192L155 165Z" />
+	<path id="Layer" class="shp6" d="M160 192L155 165L176 153L160 192Z" />
+</svg>

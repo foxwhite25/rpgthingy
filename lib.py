@@ -55,14 +55,10 @@ class RecordDAO:
     def _create_table(self):
         with self.connect() as conn:
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS start"
-                "(uid INT NOT NULL, str INT NOT NULL,dex INT NOT NULL,con INT NOT NULL, int INT NOT NULL, wis INT NOT NULL,cha INT NOT NULL,race INT NOT NULL,class INT NOT NULL PRIMARY KEY(uid))"
+                "CREATE TABLE IF NOT EXISTS combat"
+                "(uid INT NOT NULL,atk INT NOT NULL,str INT NOT NULL , def INT NOT NULL ,rag INT NOT NULL ,mag INT NOT NULL ,pra INT NOT NULL ,sla INT NOT NULL , PRIMARY KEY (uid))"
             )
             conn.execute(
-                "CREATE TABLE IF NOT EXISTS stat"
-                "(uid INT NOT NULL, head INT NOT NULL,chest INT NOT NULL,pant INT NOT NULL, boot INT NOT NULL, coin INT NOT NULL,level INT NOT NULL, exp INT NOT NULL,PRIMARY KEY(uid))"
-            )
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS equipment"
-                "(id INT NOT NULL,type TEXT NOT NULL,PRIMARY KEY(id))"
+                "CREATE TABLE IF NOT EXISTS armor"
+                "(uid INT NOT NULL,main_hand INT NOT NULL , off_hand INT NOT NULL ,hel INT NOT NULL,bod INT NOT NULL , leg INT NOT NULL ,boo INT NOT NULL ,glo INT NOT NULL ,cap INT NOT NULL ,amo_type INT NOT NULL ,amo_amount INT NOT NULL,amu INT NOT NULL,rin INT NOT NULL, PRIMARY KEY (uid))"
             )

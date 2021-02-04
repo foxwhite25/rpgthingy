@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #baced8 } 
+		.shp1 { fill: #abbfc9 } 
+		.shp2 { fill: #ec871f } 
+		.shp3 { fill: #ff901d } 
+	</style>
+	<g id="Layer">
+		<path id="Layer" class="shp0" d="M481 182L481 512L31 512L31 182L46 182C70.9 182 91 161.9 91 137L91 77L136 92L181 77C181 118.4 214.6 152 256 152C297.4 152 331 118.4 331 77L376 92L421 77L421 137C421 161.9 441.1 182 466 182L481 182Z" />
+		<path id="Layer" class="shp1" d="M481 182L481 512L256 512L256 152C297.4 152 331 118.4 331 77L376 92L421 77L421 137C421 161.9 441.1 182 466 182L481 182Z" />
+		<path id="Layer" class="shp2" d="M376 122C400.81 122 421 101.81 421 77L421 0L331 0L331 77C331 101.81 351.19 122 376 122Z" />
+		<path id="Layer" class="shp3" d="M136 122C160.81 122 181 101.81 181 77L181 0L91 0L91 77C91 101.81 111.19 122 136 122Z" />
+		<path id="Layer" class="shp3" d="M211 452L90 452L90 362L211 362L211 452Z" />
+		<path id="Layer" class="shp2" d="M422 452L301 452L301 362L422 362L422 452Z" />
+		<path id="Layer" class="shp2" d="M422 332L301 332L301 242L422 242L422 332Z" />
+		<path id="Layer" class="shp3" d="M211 332L90 332L90 242L211 242L211 332Z" />
+	</g>
+</svg>

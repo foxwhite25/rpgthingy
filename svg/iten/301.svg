@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 280.029 280.029" style="enable-background:new 0 0 280.029 280.029;" xml:space="preserve" width="512px" height="512px" class="hovered-paths"><g><g>
+	<path style="fill:#B36511" d="M253.776,122.512c-9.661,0-17.502-7.841-17.502-17.502V26.253c0-4.839-3.912-8.751-8.751-8.751   H52.506c-4.839,0-8.751,3.912-8.751,8.751v78.758c0,9.661-7.841,17.502-17.502,17.502h-8.751v140.014   c0,9.67,7.841,17.502,17.502,17.502h210.02c9.661,0,17.502-7.832,17.502-17.502V122.512H253.776z" data-original="#E2574C" class="hovered-path" data-old_color="#E2574C"/>
+	<g>
+		<path style="fill:#99560D" d="M70.008,210.021l-52.505,52.505c0,9.67,7.841,17.502,17.502,17.502h70.007v-70.007L70.008,210.021    L70.008,210.021z M175.018,210.021v70.007h70.007c9.661,0,17.502-7.832,17.502-17.502l-52.505-52.505H175.018z" data-original="#BB493F" class="active-path" data-old_color="#BB493F"/>
+	</g>
+	<path style="fill:#99560D" d="M236.274,52.505H43.755v8.751h192.519V52.505z M236.274,96.259H43.755v8.751h192.519V96.259z    M17.503,140.014v8.751h245.024v-8.751H17.503z M17.503,192.519h245.024v-8.751H17.503V192.519z M17.503,236.273h245.024v-8.751   H17.503V236.273z" data-original="#C5493E" class="" data-old_color="#C5493E"/>
+	<path style="fill:#99560D" d="M140.758,96.259h8.016v183.768h-8.016V96.259z" data-original="#DB5145" class="" data-old_color="#DB5145"/>
+	<path style="fill:#99560D" d="M96.26,0h87.509c9.661,0,17.502,7.832,17.502,17.502v26.253c0,9.67-42.844,52.505-52.505,52.505   h-17.502c-9.661,0-52.505-42.835-52.505-52.505V17.502C78.759,7.832,86.599,0,96.26,0z" data-original="#B5463D" class="" data-old_color="#B5463D"/>
+	<path style="fill:#99560D" d="M117.516,17.502h45.014c6.904,0,12.505,4.699,12.505,10.492v7.009   c0,5.793-24.301,35.003-31.206,35.003h-7.587c-6.896,0-31.206-29.21-31.206-35.003v-7.001   C105.011,22.21,110.612,17.502,117.516,17.502z" data-original="#88342E" class="" data-old_color="#88342E"/>
+	<g>
+		<polygon style="fill:#99560D" points="105.011,236.273 105.011,227.522 52.506,227.522 43.755,236.273   " data-original="#AF4437" class="" data-old_color="#AF4437"/>
+		<polygon style="fill:#99560D" points="227.523,227.522 175.018,227.522 175.018,236.273 236.274,236.273   " data-original="#AF4437" class="" data-old_color="#AF4437"/>
+	</g>
+	<path style="fill:#99560D" d="M131.264,96.259h9.486v183.768h-9.486V96.259z" data-original="#A14034" class="" data-old_color="#A14034"/>
+	<g>
+		<rect x="140.758" y="227.522" style="fill:#99560D" width="8.016" height="8.751" data-original="#C4463A" class="" data-old_color="#C4463A"/>
+		<rect x="140.758" y="183.768" style="fill:#99560D" width="8.016" height="8.751" data-original="#C4463A" class="" data-old_color="#C4463A"/>
+		<rect x="140.758" y="140.014" style="fill:#99560D" width="8.016" height="8.751" data-original="#C4463A" class="" data-old_color="#C4463A"/>
+		<rect x="140.758" y="96.259" style="fill:#99560D" width="8.016" height="8.751" data-original="#C4463A" class="" data-old_color="#C4463A"/>
+	</g>
+	<g>
+		<path style="fill:#B36511" d="M260.951,269.701l-50.93-50.93h-26.253v61.256h61.256    C252.122,280.027,258.212,275.783,260.951,269.701z M70.008,218.771l-50.93,50.93c2.739,6.082,8.83,10.326,15.927,10.326h61.256    v-61.256L70.008,218.771L70.008,218.771z" data-original="#E2574C" class="hovered-path" data-old_color="#E2574C"/>
+	</g>
+</g></g> </svg>

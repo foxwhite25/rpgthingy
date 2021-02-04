@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 472 472" width="472" height="472">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #c45c24 } 
+		.shp1 { fill: #f9bb4b } 
+		.shp2 { fill: #eb8cb3 } 
+		.shp3 { fill: #7d8d9c } 
+	</style>
+	<path id="Layer" class="shp0" d="M312 316L168 340L48 324L0 292L248 292L312 316Z" />
+	<path id="Layer" class="shp0" d="M472 364L408 364L376 316L376 252L408 204L472 204L457.6 228L428.8 276L424 284L443.2 316L452.8 332L472 364Z" />
+	<path id="Layer" class="shp1" d="M312 196L200 156L72 180L72 292L248 292L312 316L376 316L376 252L312 196Z" />
+	<path id="Layer" class="shp2" d="M152 220C152 237.67 137.67 252 120 252C102.33 252 88 237.67 88 220C88 202.33 102.33 188 120 188C137.67 188 152 202.33 152 220Z" />
+	<path id="Layer" class="shp0" d="M88 212L120 212L120 228L88 228L88 212Z" />
+	<path id="Layer" class="shp3" d="M0 260L16 260L16 292L0 292L0 260Z" />
+	<path id="Layer" class="shp3" d="M32 260L48 260L48 292L32 292L32 260Z" />
+	<path id="Layer" class="shp0" d="M184 180L200 180L200 196L184 196L184 180Z" />
+	<path id="Layer" class="shp0" d="M216 196L232 196L232 212L216 212L216 196Z" />
+	<path id="Layer" class="shp0" d="M256 204L272 204L272 220L256 220L256 204Z" />
+	<path id="Layer" class="shp0" d="M176 212L192 212L192 228L176 228L176 212Z" />
+	<path id="Layer" class="shp0" d="M232 228L248 228L248 244L232 244L232 228Z" />
+	<path id="Layer" class="shp0" d="M288 220L304 220L304 236L288 236L288 220Z" />
+	<path id="Layer" class="shp0" d="M320 244L336 244L336 260L320 260L320 244Z" />
+	<path id="Layer" class="shp3" d="M96 260L112 260L112 292L96 292L96 260Z" />
+	<path id="Layer" class="shp3" d="M128 260L144 260L144 292L128 292L128 260Z" />
+	<path id="Layer" class="shp0" d="M127.9 169.52L152 124L216 108L216 132L264 124L264 148L312 140L312 196L200 156L127.9 169.52Z" />
+	<path id="Layer" class="shp1" d="M168 340L272 380L256 325.34L168 340Z" />
+	<path id="Layer" class="shp1" d="M457.6 228L448 244L416 244L416 228L457.6 228Z" />
+	<path id="Layer" class="shp1" d="M438.4 260L428.8 276L400 276L400 260L438.4 260Z" />
+	<path id="Layer" class="shp1" d="M443.2 316L400 316L400 300L433.6 300L443.2 316Z" />
+	<path id="Layer" class="shp1" d="M462.4 348L424 348L424 332L452.8 332L462.4 348Z" />
+	<g id="Layer">
+	</g>
+</svg>
