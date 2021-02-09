@@ -26,6 +26,10 @@ class RecordDAO:
                 "CREATE TABLE IF NOT EXISTS inventory"
                 "(uid INT NOT NULL,inventory json NOT NULL,equipment json NOT NULL , action json NOT NULL ,PRIMARY KEY (uid))"
             )
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS stat"
+                "(uid INT NOT NULL,i_slot INT NOT NULL,coin INT NOT NULL , name TEXT NOT NULL ,PRIMARY KEY (uid))"
+            )
 
     def get_player_skill(self, uid):
         with self.connect() as conn:
@@ -64,6 +68,7 @@ class RecordDAO:
             return True
         else:
             return
+
 
 class dat:
     def __init__(self, db_path):
