@@ -4,21 +4,23 @@ from urllib import request
 import os
 import sqlite3
 from monster import get_urls
+from combat import get_monster_id
 from googletrans import Translator
 import ujson as json
 import re
 import cairosvg
 
 os.chdir(r'C:\Users\vctxi\PycharmProjects\rpgthingy')
-url = 'https://wiki.melvoridle.com/index.php?title=Combat_areas'
+url = 'https://wiki.melvoridle.com/index.php?title=Slayer_areas'
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 '
                   'Safari/537.36'}
 conn = sqlite3.connect('data.db')
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS combat
+c.execute('''CREATE TABLE IF NOT EXISTS slayer
        (ID INT PRIMARY KEY     NOT NULL,
         name        TEXT    NOT NULL,
+        level        INT    NOT NULL,
         monster        json    NOT NULL)''')
 conn.commit()
 translator = Translator(service_urls=[
@@ -29,15 +31,6 @@ opener.addheaders = [('User-agent',
 request.install_opener(opener)
 
 
-def get_monster_id(x):
-    r = conn.execute(
-        "SELECT ID FROM monsterlist WHERE name=?", (x,)
-    ).fetchall()
-    conn.commit()
-    if not r:
-        print("Cannot get id from " + x)
-    return r[0]
-
 
 def get_data(url):
     stl = 0
@@ -47,20 +40,23 @@ def get_data(url):
     html = etree.HTML(text)
     name = html.xpath('//*[@id="mw-content-text"]/div/table[2]/tbody/tr[1]/th/text()')[0]
     id = html.xpath('//*[@id="mw-content-text"]/div/table[2]/tbody/tr[3]/td/text()')[0].split()[3]
+    level = html.xpath('//*[@id="mw-content-text"]/div/table[2]/tbody/tr[4]/td/p/span/text()')[0].split()[1]
     monsters = html.xpath('//*[@id="mw-content-text"]/div/table[3]/tbody//tr//td//span//a//text()')
     mid = []
     for each in monsters:
         mid.append(get_monster_id(each)[0])
     mid = json.dumps(mid)
     c = conn.cursor()
-    c.execute('''insert or replace into combat (
+    c.execute('''insert or replace into slayer (
         ID,
         name,
-        monster)
+        monster,
+        level)
     values (
         ?,
         ?,
-        ?)''', (id, name, mid,))
+        ?,
+        ?)''', (id, name, mid,level,))
     conn.commit()
 
 
