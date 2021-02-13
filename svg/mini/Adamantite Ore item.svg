@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 300" width="310" height="300">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #949494 } 
+		.shp1 { fill: #7c7c7c } 
+		.shp2 { fill: #ababab } 
+		.shp3 { fill: #c9c9c9 } 
+		.shp4 { fill: #bbbbbb } 
+		.shp5 { fill: #188d1e } 
+		.shp6 { fill: #56df5c } 
+		.shp7 { fill: #1d9b23 } 
+	</style>
+	<path id="Layer" class="shp0" d="M129.5 300L45.5 288L33.5 144L118.5 214L201.5 288L129.5 300Z" />
+	<path id="Layer" class="shp1" d="M9.5 147.5L21.5 120L33.5 144L45.5 288L0 189L9.5 147.5Z" />
+	<path id="Layer" class="shp2" d="M201.5 84L33.5 144L105.5 204L201.5 288L249.5 180L201.5 84Z" />
+	<path id="Layer" class="shp3" d="M309.5 60L273.5 0L201.5 84L249.5 180L309.5 144L309.5 60Z" />
+	<path id="Layer" class="shp4" d="M93.5 0L28.5 78L21.5 120L33.5 144L201.5 84L273.5 0L93.5 0Z" />
+	<path id="Layer" class="shp5" d="M271.21 52.32L247 70.65L267.75 137.05L288.5 108L288.5 70.65L278.99 53.19L271.21 52.32Z" />
+	<path id="Layer" class="shp6" d="M267.75 85.18L247 70.65L267.75 48L278.99 53.19L288.5 70.65L288.5 74.8L267.75 85.18Z" />
+	<path id="Layer" class="shp5" d="M106.65 21.83L77.55 58.2L63 80.03L99.38 65.48L150.3 43.65L193.95 50.93L208.5 36.37L193.95 14.55L135.75 0L106.65 21.83Z" />
+	<path id="Layer" class="shp6" d="M150.3 29.1L135.75 0L193.95 14.55L208.5 36.37L193.95 50.93L150.3 29.1Z" />
+	<path id="Layer" class="shp5" d="M9.5 132L21.5 120L33.5 144L34.5 155.5L9.5 168L9.5 132Z" />
+	<path id="Layer" class="shp6" d="M21.5 120L9.5 132L33.5 144L21.5 120Z" />
+	<path id="Layer" class="shp7" d="M177.6 260.1L192.09 235L152.49 245.61L138 270.71L163.1 285.21L182.9 279.9L177.6 260.1Z" />
+	<path id="Layer" class="shp5" d="M182.9 279.9L177.6 260.1L138 270.71L163.1 285.21L182.9 279.9Z" />
+	<path id="Layer" class="shp6" d="M177.6 260.1L192.09 235L197.39 254.8L182.9 279.9L177.6 260.1Z" />
+	<path id="Layer" class="shp7" d="M153.9 157.14L131.76 141.64L194.5 123L192.65 134.99L153.9 157.14Z" />
+	<path id="Layer" class="shp5" d="M153.9 157.14L117 131.3L152.06 206.96L163.13 206.96L153.9 157.14Z" />
+	<path id="Layer" class="shp6" d="M163.13 206.96L153.9 157.14L192.65 134.99L163.13 206.96Z" />
+</svg>

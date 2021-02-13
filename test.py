@@ -1,72 +1,88 @@
-import requests
-from PIL import Image, ImageFont, ImageDraw
-import random
-from io import StringIO
 import math
+import os
 
-millnames = ['', ' K', ' M', ' B', ' T']
+from PIL import Image, ImageFont, ImageDraw
 
-
-def millify(n):
-    n = float(n)
-    millidx = max(0, min(len(millnames) - 1,
-                         int(math.floor(0 if n == 0 else math.log10(abs(n)) / 3))))
-
-    return '{:.0f}{}'.format(n / 10 ** (3 * millidx), millnames[millidx])
-
-
-
-def progressBar(bgcolor, color, x, y, w, h, progress):
-    im = Image.new('RGBA', (w, h), color='black')
-    drawObject = ImageDraw.Draw(im)
-
-    '''BG'''
-    drawObject.ellipse((x + w, y, x + h + w, y + h), fill=bgcolor)
-    drawObject.ellipse((x, y, x + h, y + h), fill=bgcolor)
-    drawObject.rectangle((x + (h / 2), y, x + w + (h / 2), y + h), fill=bgcolor)
-
-    '''PROGRESS'''
-    if (progress <= 0):
-        progress = 0.01
-    if (progress > 1):
-        progress = 1
-    w = w * progress
-    drawObject.ellipse((x + w, y, x + h + w, y + h), fill=color)
-    drawObject.ellipse((x, y, x + h, y + h), fill=color)
-    drawObject.rectangle((x + (h / 2), y, x + w + (h / 2), y + h), fill=color)
-
-    '''SAVE'''
-    return im
+mining_mastery = {45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0, 388: 0}
+skill = {"mxp": 0, "mlv": 1, "sxp": 0, "slv": 1, 'nmxp': 10, 'nsxp': 10}
+__BASE = os.path.split(os.path.realpath(__file__))
+ore = [{'id': 45, 'level': 1, 'exp': 7}, {'id': 46, 'level': 1, 'exp': 7}, {'id': 47, 'level': 15, 'exp': 14},
+       {'id': 48, 'level': 49, 'exp': 18}, {'id': 49, 'level': 30, 'exp': 25}, {'id': 50, 'level': 40, 'exp': 28},
+       {'id': 51, 'level': 50, 'exp': 65}, {'id': 52, 'level': 70, 'exp': 71}, {'id': 53, 'level': 80, 'exp': 86},
+       {'id': 54, 'level': 95, 'exp': 101}, {'id': 388, 'level': 1, 'exp': 5}]
+millnames = ['', 'K', 'M', 'B', 'T']
 
 
-def get_pic(qq):
-    apiPath = f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=100'
-    return Image.open(requests.get(apiPath, stream=True).raw)
+def f(x):
+    if x == 1:
+        return 0
+    else:
+        y = round(0.25 * (x - 1 + 300 * (2 ** ((x - 1) / 7))))
+        y += f(x - 1)
+        return y
 
 
-def profile(uid):
-    placeholder = Image.open("./icons/placeholder.png")
-    r = get_pic(uid)
-    r = r.resize((280, 280), Image.ANTIALIAS)
-    img = Image.new('RGBA', (900, 1340), (255, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    fnt = ImageFont.truetype('./random.ttf', 70)
-    d.text((450, 100), f"名字:{NAME}", font=fnt, fill=(0, 0, 0))
-    d.text((450, 170), f"战斗等级:{CLEVEL}", font=fnt, fill=(0, 0, 0))
-    d.text((450, 240), f"金钱:{COIN}", font=fnt, fill=(0, 0, 0))
-    d.text((450, 310), f"背包:{BACKPACK}", font=fnt, fill=(0, 0, 0))
-    img.paste(r, (100, 100))
-    placeholder = placeholder.resize((70, 70), Image.ANTIALIAS)
-    fnt = ImageFont.truetype('./random.ttf', 25)
-    n = 0
-    for skill, lv in level.items():
-        d.text((180, 480 + 100 * n), skill, font=fnt, fill=(0, 0, 0))
-        img.paste(progressBar("white", "black", 0, 0, 620, 10, lv / 100), (180, 505 + 100 * n))
-        d.text((180, 515 + 100 * n), f"{lv}/100", font=fnt, fill=(0, 0, 0))
-        img.paste(placeholder, (100, 480 + 100 * n))
-        n += 1
-    im = Image.open("./border.png")
-    im = im.convert('RGBA')
-    im = im.resize((1080, 1920), Image.ANTIALIAS)
-    im.paste(img, (100, 150), img)
-    im.save('white.png')
+def g(x):
+    if x == 1:
+        return 0
+    else:
+        y = round(0.25 * (x - 1 + 300 * (2 ** ((x - 1) / 7))))
+        return y
+
+
+exp = {}
+exp_delta = {}
+for n in range(1, 99):
+    exp[n] = f(n)
+    exp_delta[n] = g(n)
+
+
+def get_level(x):
+    a = 1
+    for level, xp in exp.items():
+        if x == xp:
+            return level
+        if x > xp:
+            return a
+        a = level
+
+
+def round_corner(radius, fill):
+    """Draw a round corner"""
+    corner = Image.new('RGBA', (radius, radius), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(corner)
+    draw.pieslice((0, 0, radius * 2, radius * 2), 180, 270, fill=fill)
+    return corner
+
+
+def round_rectangle(size, radius, fill, msg):
+    """Draw a rounded rectangle"""
+    width, height = size
+    W, H = width, height
+    rectangle = Image.new('RGBA', size, fill)
+    corner = round_corner(radius, fill)
+    rectangle.paste(corner, (0, 0))
+    rectangle.paste(corner.rotate(90), (0, height - radius))  # Rotate the corner and paste it
+    rectangle.paste(corner.rotate(180), (width - radius, height - radius))
+    rectangle.paste(corner.rotate(270), (width - radius, 0))
+    draw = ImageDraw.Draw(rectangle)
+    w, h = draw.textsize(msg)
+    font_path = os.path.join(__BASE[0], 'random.ttf')
+    fnt = ImageFont.truetype(font_path, 40)
+    draw.text(((W - w) / 2 - 48, (H - h) / 2 - 15), msg, font=fnt, fill="black")
+    return rectangle
+
+
+a = [{'from': {'45': '1', '46': '1'}, 'to': {'55': '1'}, 'level': '1', 'exp': '5'}, {'from': {'47': '1'}, 'to': {'56': '1'}, 'level': '10', 'exp': '8'}, {'from': {'47': '1', '48': '2'}, 'to': {'57': '1'}, 'level': '25', 'exp': '12'}, {'from': {'49': '1'}, 'to': {'133': '1'}, 'level': '30', 'exp': '15'}, {'from': {'50': '1'}, 'to': {'58': '1'}, 'level': '40', 'exp': '20'}, {'from': {'51': '1', '48': '4'}, 'to': {'59': '1'}, 'level': '40', 'exp': '35'}, {'from': {'52': '1', '48': '6'}, 'to': {'60': '1'}, 'level': '55', 'exp': '42'}, {'from': {'53': '1', '48': '8'}, 'to': {'61': '1'}, 'level': '70', 'exp': '50'}, {'from': {'54': '1', '53': '2', '48': '12'}, 'to': {'62': '1'}, 'level': '85', 'exp': '60'}]
+b = []
+for item in a:
+    for key , value in item.items():
+        if isinstance(value,dict):
+            for k , v in value.items():
+                value[k] = int(v)
+            item[key] = value
+        else:
+            item[key] = int(value)
+    b.append(item)
+print(b)
+b = [{'from': {'45': 1, '46': 1}, 'to': {'55': 1}, 'level': 1, 'exp': 5}, {'from': {'47': 1}, 'to': {'56': 1}, 'level': 10, 'exp': 8}, {'from': {'47': 1, '48': 2}, 'to': {'57': 1}, 'level': 25, 'exp': 12}, {'from': {'49': 1}, 'to': {'133': 1}, 'level': 30, 'exp': 15}, {'from': {'50': 1}, 'to': {'58': 1}, 'level': 40, 'exp': 20}, {'from': {'51': 1, '48': 4}, 'to': {'59': 1}, 'level': 40, 'exp': 35}, {'from': {'52': 1, '48': 6}, 'to': {'60': 1}, 'level': 55, 'exp': 42}, {'from': {'53': 1, '48': 8}, 'to': {'61': 1}, 'level': 70, 'exp': 50}, {'from': {'54': 1, '53': 2, '48': 12}, 'to': {'62': 1}, 'level': 85, 'exp': 60}]

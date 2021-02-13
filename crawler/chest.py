@@ -25,7 +25,7 @@ translator = Translator(service_urls=[
     'translate.google.cn', ])
 opener = request.build_opener()
 opener.addheaders = [('User-agent',
-                      'Opera/9.80 (Android 2.3.4; Linux; Opera Mobi/build-1107180945; U;                                           en-GB) Presto/2.8.149 Version/11.10')]
+                      'Opera/9.80 (Android 2.3.4; Linux; Opera Mobi/build-1107180945; U;en-GB) Presto/2.8.149 Version/11.10')]
 request.install_opener(opener)
 
 def p2f(x):
