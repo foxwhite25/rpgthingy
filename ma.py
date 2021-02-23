@@ -140,13 +140,6 @@ ore = [{'id': 45, 'level': 1, 'exp': 7}, {'id': 46, 'level': 1, 'exp': 7}, {'id'
        {'id': 48, 'level': 30, 'exp': 18}, {'id': 49, 'level': 30, 'exp': 25}, {'id': 50, 'level': 40, 'exp': 28},
        {'id': 51, 'level': 50, 'exp': 65}, {'id': 52, 'level': 70, 'exp': 71}, {'id': 53, 'level': 80, 'exp': 86},
        {'id': 54, 'level': 95, 'exp': 101}, {'id': 388, 'level': 1, 'exp': 5}]
-pickaxe = [{'id': 1, 'name': '铁镐', 'level': 1, 'chance': 0.01, 'speed': 0.05, 'coin': 250},
-           {'id': 2, 'name': '钢镐', 'level': 10, 'chance': 0.02, 'speed': 0.1, 'coin': 2000},
-           {'id': 3, 'name': '黑钢镐', 'level': 20, 'chance': 0.03, 'speed': 0.15, 'coin': 10000},
-           {'id': 4, 'name': '秘银镐', 'level': 35, 'chance': 0.04, 'speed': 0.2, 'coin': 50000},
-           {'id': 5, 'name': '精金镐', 'level': 50, 'chance': 0.05, 'speed': 0.3, 'coin': 200000},
-           {'id': 6, 'name': '符文镐', 'level': 60, 'chance': 0.06, 'speed': 0.4, 'coin': 1000000},
-           {'id': 7, 'name': '飞龙镐', 'level': 80, 'chance': 0.07, 'speed': 0.5, 'coin': 5000000}]
 gem = [{'id': "128", 'weight': 0.5}, {'id': "129", 'weight': 0.175}, {'id': "130", 'weight': 0.175},
        {'id': "131", 'weight': 0.1},
        {'id': "132", 'weight': 0.05}]
