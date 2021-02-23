@@ -4,6 +4,7 @@ import os
 import sqlite3
 import os
 import ujson as json
+from .ma import *
 
 cmds: Dict[str, Callable] = {}
 RPG_DB_PATH = os.path.expanduser("~/.hoshino/rpg.db")
@@ -112,9 +113,15 @@ class RecordDAO:
         return r
 
     def update_player_inv(self, uid, inv):
+        inv = json.loads(inv)
+        inv2 = {}
+        for item, value in inv.items():
+            if value != 0:
+                inv2[item] = value
+        inv2 = json.dumps(inv2, indent=4)
         with self.connect() as conn:
             r = conn.execute(
-                "UPDATE inventory SET inventory=? WHERE uid=?", (inv, uid,)
+                "UPDATE inventory SET inventory=? WHERE uid=?", (inv2, uid,)
             ).fetchall()
         return r
 
@@ -122,6 +129,27 @@ class RecordDAO:
         with self.connect() as conn:
             r = conn.execute(
                 "UPDATE stat SET %s=? WHERE uid=?" % col, (value, uid)
+            ).fetchall()
+        return r
+
+    def update_player_upgrade(self, uid, upgrade):
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE inventory SET upgrade=? WHERE uid=?", (upgrade, uid,)
+            ).fetchall()
+        return r
+
+    def update_player_equipment(self, uid, equipment):
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE inventory SET equipment=? WHERE uid=?", (equipment, uid,)
+            ).fetchall()
+        return r
+
+    def update_player_charge(self, uid, charge):
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE inventory SET charge=? WHERE uid=?", (charge, uid,)
             ).fetchall()
         return r
 
@@ -203,6 +231,22 @@ class RecordDAO:
             ).fetchall()
         return r[0]
 
+    def get_all_skill_level(self, uid):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT skill FROM skill WHERE uid=?", (uid,)
+            ).fetchall()[0][0]
+        r = json.loads(r)
+        return r
+
+    def get_upgrade(self, uid):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT upgrade FROM inventory WHERE uid=?", (uid,)
+            ).fetchall()[0][0]
+        r = json.loads(r)
+        return r
+
     def ini_player(self, uid, name):
         if not self.is_player_exist(uid):
             skill = {"attack": 0, "strength": 0, "defence": 0, "hitpoints": 0, "ranged": 0, "magic": 0, "prayer": 0,
@@ -216,7 +260,27 @@ class RecordDAO:
             action = {"action": None, "start_time": None}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = {}, {}, {}, {}, {
                 45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0,
-                388: 0}, {}, {}, {}, {}, {}, {}, {}
+                388: 0}, {'55': 0, '56': 0, '57': 0, '133': 0, '58': 0, '59': 0, '60': 0, '61': 0, '62': 0, '63': 0,
+                          '705': 0, '269': 0, '64': 0, '462': 0, '431': 0, '67': 0, '65': 0, '731': 0, '68': 0,
+                          '121': 0, '66': 0, '724': 0, '69': 0, '70': 0, '723': 0, '71': 0, '706': 0, '72': 0, '270': 0,
+                          '463': 0, '432': 0, '75': 0, '73': 0, '732': 0, '76': 0, '122': 0, '74': 0, '725': 0, '77': 0,
+                          '78': 0, '79': 0, '707': 0, '80': 0, '271': 0, '464': 0, '433': 0, '83': 0, '81': 0, '733': 0,
+                          '84': 0, '123': 0, '82': 0, '726': 0, '85': 0, '86': 0, '87': 0, '708': 0, '88': 0, '272': 0,
+                          '465': 0, '435': 0, '91': 0, '89': 0, '734': 0, '92': 0, '124': 0, '90': 0, '727': 0, '93': 0,
+                          '94': 0, '95': 0, '709': 0, '96': 0, '273': 0, '466': 0, '436': 0, '99': 0, '97': 0, '735': 0,
+                          '100': 0, '125': 0, '98': 0, '728': 0, '101': 0, '102': 0, '103': 0, '710': 0, '104': 0,
+                          '274': 0, '467': 0, '437': 0, '107': 0, '105': 0, '736': 0, '108': 0, '126': 0, '106': 0,
+                          '729': 0, '109': 0, '110': 0, '111': 0, '711': 0, '112': 0, '275': 0, '468': 0, '438': 0,
+                          '115': 0, '113': 0, '737': 0, '116': 0, '127': 0, '114': 0, '730': 0, '118': 0,
+                          '117': 0}, {}, {}, {}, {'297': 0, '298': 0, '299': 0, '300': 0, '301': 0, '302': 0, '624': 0,
+                                                  '625': 0, '626': 0, '627': 0, '628': 0, '629': 0, '303': 0, '304': 0,
+                                                  '758': 0, '305': 0, '306': 0, '307': 0, '759': 0, '308': 0, '309': 0,
+                                                  '310': 0, '760': 0, '311': 0, '312': 0, '313': 0, '761': 0, '314': 0,
+                                                  '315': 0, '320': 0, '316': 0, '321': 0, '317': 0, '322': 0, '318': 0,
+                                                  '323': 0, '319': 0, '324': 0, '325': 0, '330': 0, '326': 0, '331': 0,
+                                                  '327': 0, '332': 0, '328': 0, '333': 0, '329': 0, '334': 0}, {}, {}
+            upgrade = {"pickaxe": 0, "axe": 0, "fishing_rod": 0, "cooking_fire": 0}
+            charge = {"335": "None", "336": "None", "337": "None", "338": "None", "339": "None"}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = json.dumps(
                 woodcutting, indent=4), json.dumps(fishing, indent=4), json.dumps(firemaking, indent=4), json.dumps(
                 cooking, indent=4), json.dumps(mining, indent=4), json.dumps(smithing, indent=4), json.dumps(thieving,
@@ -227,12 +291,14 @@ class RecordDAO:
             inventory = json.dumps(inventory, indent=4)
             equipment = json.dumps(equipment, indent=4)
             action = json.dumps(action, indent=4)
+            upgrade = json.dumps(upgrade, indent=4)
+            charge = json.dumps(charge, indent=4)
             with self.connect() as conn:
                 conn.execute("INSERT OR REPLACE INTO skill (uid,skill) VALUES (?,?)", (uid, skill,), )
             with self.connect() as conn:
                 conn.execute(
-                    "INSERT OR REPLACE INTO inventory (uid,inventory,equipment,action,upgrade) VALUES (?,?,?,?,?)",
-                    (uid, inventory, equipment, action, inventory,), )
+                    "INSERT OR REPLACE INTO inventory (uid,inventory,equipment,action,upgrade,charge) VALUES (?,?,?,?,?,?)",
+                    (uid, inventory, equipment, action, upgrade, charge), )
             with self.connect() as conn:
                 conn.execute("INSERT OR REPLACE INTO stat (uid,i_slot,coin,name) VALUES (?,?,?,?)",
                              (uid, 12, 0, name,), )
@@ -274,3 +340,60 @@ class dat:
                 "SELECT name FROM itemlist WHERE id=? ", (id,)
             ).fetchall()
         return r[0]
+
+    def get_recipes(self, id):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT * FROM recipes WHERE id=? ", (id,)
+            ).fetchall()
+        return r[0]
+
+    def get_all_recipes(self, skill):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT id FROM recipes WHERE skill=? ", (skill,)
+            ).fetchall()
+        a = []
+        for each in r:
+            a.append(each[0])
+        return a
+
+    def get_all_recipes_level(self, skill):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT level FROM recipes WHERE skill=? ", (skill,)
+            ).fetchall()
+        a = []
+        for each in r:
+            a.append(each[0])
+        return a
+
+    def get_shop(self):
+        with self.connect() as conn:
+            pickaxe = conn.execute(
+                "SELECT * FROM pickaxe ",
+            ).fetchall()
+            axe = conn.execute(
+                "SELECT * FROM axe ",
+            ).fetchall()
+            fish = conn.execute(
+                "SELECT * FROM fishing_rod ",
+            ).fetchall()
+            cook = conn.execute(
+                "SELECT * FROM cooking_fire ",
+            ).fetchall()
+            gloves = conn.execute(
+                "SELECT * FROM gloves ",
+            ).fetchall()
+            shop = conn.execute(
+                "SELECT * FROM shop ",
+            ).fetchall()
+            skillcapes = conn.execute(
+                "SELECT * FROM skillcape ",
+            ).fetchall()
+            a = {}
+            for i, s in skillcapes:
+                a[s] = i
+            skillcapes = a
+        return {"pickaxe": pickaxe, "axe": axe, "fish": fish, "cook": cook, "gloves": gloves, "shop": shop,
+                "skillcapes": skillcapes}
