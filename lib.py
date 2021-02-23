@@ -73,7 +73,7 @@ class RecordDAO:
             )
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS inventory"
-                "(uid INT NOT NULL,inventory json NOT NULL,equipment json NOT NULL , action json NOT NULL ,upgrade json NOT NULL ,PRIMARY KEY (uid))"
+                "(uid INT NOT NULL,inventory json NOT NULL,equipment json NOT NULL , action json NOT NULL ,upgrade json NOT NULL ,charge json NOT NULL,PRIMARY KEY (uid))"
             )
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS stat"
