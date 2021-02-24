@@ -17,15 +17,6 @@ DATA_PATH = os.path.expanduser("~/.hoshino/data.db")
 dat = dat(DATA_PATH)
 
 
-@reg_cmd('测试输出')
-async def cmd_test(bot: HoshinoBot, ev: CQEvent, args):
-    uid = ev['user_id']
-    await bot.send(ev, '少女祈祷中...')
-    msg = crafting(uid)
-    await bot.send(ev, msg)
-    return
-
-
 @reg_cmd('充能列表')
 async def cmd_eqp(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
@@ -310,6 +301,53 @@ async def cmd_inventory(bot: HoshinoBot, ev: CQEvent, args):
     await bot.send(ev, msg)
 
 
+@reg_cmd('合成')
+async def cmd_crafting(bot: HoshinoBot, ev: CQEvent, args):
+    uid = ev['user_id']
+    if is_bp_full(uid):
+        await bot.send(ev, '背包已满，请使用?售卖 [物品ID] [数量]来清理背包，或者?购买背包 (数量或者max)来增加背包容量')
+        return
+    try:
+        a = args[0]
+    except IndexError:
+        await bot.send(ev, '少女祈祷中...')
+        msg = crafting(uid)
+        await bot.send(ev, str(msg) + '\n发送?合成 [物品ID]开始合成')
+        return
+    skill = get_gather_skill_mastery(uid, "crafting")
+    inv = db.get_player_inv(uid)[1]
+    inv = json.loads(inv)
+    recipes = dat.get_recipes(args[0])
+    if recipes[5] > skill["slv"]:
+        await bot.send(ev, f"你的等级不足，无法锻造{dat.get_item_from_col('id', args[0])[1]}")
+        return
+    if str(args[0]) in dat.get_all_recipes('合成'):
+        if is_player_in_action(uid):
+            a = is_player_in_action(uid)
+            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            return
+        else:
+            fr = json.loads(recipes[2])
+            for item, value in fr.items():
+                try:
+                    a = inv[item]
+                    if a >= value:
+                        pass
+                    else:
+                        await bot.send(ev, f"你的{dat.get_item_from_col('id', item)[1]}不足")
+                        return
+                except:
+                    await bot.send(ev, f"你的{dat.get_item_from_col('id', item)[1]}不足")
+                    return
+            db.update_player_action(['合成', args[0]], uid)
+            img = get_item_image(args[0])
+            await bot.send(ev,
+                           f"{MessageSegment.image(util.pic2b64(img))}\n成功开始了合成{dat.get_item_from_col('id', args[0])[1]}行动\n当你想要取消的时候输入?结算行动")
+            return
+    else:
+        await bot.send(ev, f'{dat.get_item_from_col("id", args[0])[1]}并不是可合成的物品')
+
+
 @reg_cmd(['采集矿石', '采矿'])
 async def cmd_mine(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
@@ -370,7 +408,6 @@ async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
     if recipes[5] > skill["slv"]:
         await bot.send(ev, f"你的等级不足，无法锻造{dat.get_item_from_col('id', args[0])[1]}")
         return
-    print(dat.get_all_recipes('锻造'), str(args[0]))
     if str(args[0]) in dat.get_all_recipes('锻造'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
@@ -456,6 +493,10 @@ async def cmd_complete(bot: HoshinoBot, ev: CQEvent, args):
             return
         if action['action'][0] == '锻造':
             msg = cal_smithing(action, uid)
+            await bot.send(ev, msg)
+            return
+        if action['action'][0] == '合成':
+            msg = cal_crafting(action, uid)
             await bot.send(ev, msg)
             return
     else:
@@ -563,4 +604,4 @@ async def cmd_sell(bot: HoshinoBot, ev: CQEvent, args):
 
 @reg_cmd(['help', '帮助', '说明'])
 async def cmd_help(bot: HoshinoBot, ev: CQEvent, args):
-    await bot.send(ev, '用你脑子想一想，我会不会写文档')
+    await bot.send(ev, r'最新指令说明在这:https://github.com/foxwhite25/rpgthingy#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95')

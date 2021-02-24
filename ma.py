@@ -123,7 +123,7 @@ def get_bp_cost(x):
 
 
 def mxpd(uid, action, item, spa, iteration):
-    milestone = mining_milestone(uid) + smithing_milestone(uid)
+    milestone = mining_milestone(uid) + smithing_milestone(uid) + crafting_milestone(uid)
     mastery = db.get_mastery(uid, action)[0]
     mastery = json.loads(mastery)
     total_mastery = len(mastery) * 99
@@ -378,6 +378,16 @@ def smithing_milestone(uid):
     return a
 
 
+def crafting_milestone(uid):
+    skill = get_gather_skill_mastery(uid, "crafting")
+    recipes = dat.get_all_recipes_level('crafting')
+    a = 0
+    for r in recipes:
+        if r <= skill["slv"]:
+            a += 1
+    return a
+
+
 def cal_mining(action, uid):
     sk = json.loads(db.get_player_skill(uid)[1])
     picks = dat.get_shop()['pickaxe']
@@ -434,9 +444,7 @@ def cal_mining(action, uid):
             charge = iteration
         else:
             bonus = math.floor(1 + charge / iteration)
-        loot2 = loot
-        for item, value in loot2.items():
-            loot[item] = math.floor(value * bonus)
+        loot[o] = math.floor(loot[o] * bonus)
         charges["336"] -= charge
         db.update_player_charge(uid, json.dumps(charges, indent=4))
     add_loot_to_inv(loot, uid)
@@ -505,6 +513,11 @@ def cal_smithing(action, uid):
         fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
     for k in to.keys():
         to[k] = math.floor(to[k] * iteration * (1 + sec_chance))
+    if equipment['cape'] == "457" or equipment['cape'] == "810" or equipment['cape'] == "903":
+        try:
+            fr['48'] = round(fr['48'] / 2)
+        except:
+            pass
     inv = Counter(inv) - fr + to
     inv = json.dumps(dict(inv))
     db.update_player_inv(uid, inv)
@@ -528,6 +541,71 @@ def cal_smithing(action, uid):
     fr_image = str(inventory(0, user_loot=True, loot=fr))
     to_image = str(inventory(0, user_loot=True, loot=to))
     msg = f'''经过了{time_str}，进行了{iteration}次锻造，消耗了:{fr_image}
+    并获得了{xp}点经验值和{mxp}点{dat.get_name_from_id(item)[0]}熟练度以及:{to_image}'''
+    return msg
+
+
+def cal_crafting(action, uid):
+    sk = json.loads(db.get_player_skill(uid)[1])
+    time = 3
+    start_time = action['start_time']
+    equipment = json.loads(db.get_player_inv(uid)[2])
+    if equipment['cape'] == "446" or equipment['cape'] == "810" or equipment['cape'] == "903":
+        time -= 0.5
+    item = action['action'][1]
+    skill = db.get_mastery(uid, 'crafting')[0]
+    skill = json.loads(skill)
+    print(action)
+    print(skill)
+    preserve = 0
+    preserve += 0.002 * skill[str(item)]
+    if skill[str(item)] == 99:
+        preserve += 0.05
+    mastery_pool = sk['crafting'][0]
+    if mastery_pool >= 12000000:
+        time -= 0.2
+    if mastery_pool >= 6000000:
+        preserve += 0.05
+    inv = json.loads(db.get_player_inv(uid)[1])
+    recipes = dat.get_recipes(item)
+    fr = Counter(json.loads(recipes[2]))
+    to = Counter(json.loads(recipes[1]))
+    max_consume = 1000000000
+    try:
+        for itm, value in fr.items():
+            if math.floor(inv[itm] / value) < max_consume:
+                max_consume = math.floor(inv[itm] / value)
+    except:
+        return '材料不足，将退出行动'
+    max_it = math.floor(max_consume / (1 - preserve))
+    now = datetime.datetime.timestamp(datetime.datetime.now())
+    seconds = math.floor(now - start_time)
+    if seconds >= 43200:
+        seconds = 43200
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    time_str = ("%d小时%02d分%02d秒" % (h, m, s))
+    iteration = math.floor(seconds / time)
+    if max_it < iteration:
+        iteration = max_it
+    for k in fr.keys():
+        fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+    if mastery_pool >= 22800000 and 315 < int(item) < 334:
+        for k in to.keys():
+            to[k] = math.floor(to[k] * iteration * 2)
+    inv = Counter(inv) - fr + to
+    inv = json.dumps(dict(inv))
+    db.update_player_inv(uid, inv)
+    mxp = mxpd(uid, 'crafting', item, time, iteration)
+    xp = recipes[4] * iteration
+    if mastery_pool >= 2400000:
+        mxp = round(mxp * 1.05)
+    db.add_skill_xp(uid, 'crafting', xp)
+    db.add_master_xp(uid, 'crafting', item, mxp)
+    db.add_mastery_pool(uid, 'crafting', int(mxp * 0.25))
+    fr_image = str(inventory(0, user_loot=True, loot=fr))
+    to_image = str(inventory(0, user_loot=True, loot=to))
+    msg = f'''经过了{time_str}，进行了{iteration}次合成，消耗了:{fr_image}
     并获得了{xp}点经验值和{mxp}点{dat.get_name_from_id(item)[0]}熟练度以及:{to_image}'''
     return msg
 
