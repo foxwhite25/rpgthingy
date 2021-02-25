@@ -21,6 +21,10 @@ dat = dat(DATA_PATH)
 millnames = ['', 'K', 'M', 'B', 'T']
 
 
+def get_skill_mastery(skill):
+    return dat.get_skill_mastery(skill)
+
+
 def millify(n):
     n = float(n)
     millidx = max(0, min(len(millnames) - 1,
@@ -590,6 +594,8 @@ def cal_crafting(action, uid):
         iteration = max_it
     for k in fr.keys():
         fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+    for k in to.keys():
+        to[k] = math.floor(to[k] * iteration )
     if mastery_pool >= 22800000 and 315 < int(item) < 334:
         for k in to.keys():
             to[k] = math.floor(to[k] * iteration * 2)
@@ -751,6 +757,70 @@ def crafting(uid):
     fnt = ImageFont.truetype(font_path, 30)
     d = ImageDraw.Draw(img)
     d.text((340, 0), f"合成系统:", font=header_fnt, fill=(0, 0, 0))
+    d.text((280, 70), '''
+    合成是一种用来从皮革和龙皮制作远程装
+    甲，以及使用宝石，银条或金条制作戒指
+    和项链的技能。''', font=fnt, fill=(0, 0, 0))
+    if sk['slv'] >= 99:
+        color = (48, 199, 141)
+    else:
+        color = (92, 172, 229)
+    pbar = progressBar((45, 53, 66), color, 0, 0, 800, 20, sk['slv'] / 99)
+    box = round_rectangle((150, 50), 10, (48, 199, 141), f"{sk['slv']}/99")
+    box2 = round_rectangle((150, 50), 10, (92, 172, 229), f"{millify(sk['sxp'])}")
+    d.text((100, 390), f"等级:", font=ImageFont.truetype(font_path, 45), fill=(0, 0, 0))
+    d.text((500, 390), f"经验:", font=ImageFont.truetype(font_path, 45), fill=(0, 0, 0))
+    img.paste(box, (200, 390), box)
+    img.paste(box2, (600, 390), box2)
+    img.paste(pbar, (50, 450), pbar)
+    n = 1
+    for item, skil in mastery.items():
+        o = dat.get_recipes(item)
+        if o[5] <= sk['slv']:
+            im = get_item_image(item)
+            im = im.resize((100, 100), Image.ANTIALIAS)
+            img.paste(im, (0, 400 + n * 120), im)
+            level = get_skill_level(skil)
+            d.text((110, 400 + n * 120), f"{dat.get_name_from_id(item)[0]}的熟练度:{level}/99", font=fnt, fill=(0, 0, 0))
+            if level >= 99:
+                color = (48, 199, 141)
+            else:
+                color = (92, 172, 229)
+            pbar = progressBar((45, 53, 66), color, 0, 0, 700, 10, level / 99)
+            img.paste(pbar, (110, 440 + n * 120), pbar)
+            d.text((110, 470 + n * 120), f"所需等级:{o[5]} 每一次获得经验:{o[4]} 默认需时:{o[3]} ID:{o[0]}", font=fnt, fill=(0, 0, 0))
+        else:
+            im = Image.new('RGBA', (900, 100), (52, 60, 74))
+            img.paste(im, (0, 400 + n * 120), im)
+            d.text((330, 440 + n * 120), f"将在  等级{o[5]}解锁", font=fnt, fill='white')
+            im = Image.open(_path)
+            im = im.resize((30, 30), Image.ANTIALIAS)
+            img.paste(im, (385, 440 + n * 120), im)
+        n += 1
+    im = Image.new('RGB', (1000, 6400), (0, 0, 0, 0))
+    im2 = Image.new('RGB', (950, 6400 - 50), (255, 255, 255))
+    im.convert("RGBA")
+    im.paste(im2, (25, 25))
+    im.paste(img, (50, 50), img)
+    im.paste(Image.new('RGBA', (1000, 20), (0, 0, 0)), (0, 400))
+    im.paste(Image.new('RGBA', (1000, 20), (0, 0, 0)), (0, 530))
+    return MessageSegment.image(util.pic2b64(im))
+
+
+def runecrafting(uid):
+    mastery = db.get_mastery(uid, 'runecrafting')[0]
+    mastery = json.loads(mastery)
+    sk = get_gather_skill_mastery(uid, 'runecrafting')
+    img = Image.new('RGBA', (900, 6500), (255, 0, 0, 0))
+    _path = os.path.join(__BASE[0], 'icons/skill/rune.png')
+    im = Image.open(_path)
+    im = im.resize((340, 340), Image.ANTIALIAS)
+    img.paste(im, (0, 0), im)
+    font_path = os.path.join(__BASE[0], 'random.ttf')
+    header_fnt = ImageFont.truetype(font_path, 100)
+    fnt = ImageFont.truetype(font_path, 30)
+    d = ImageDraw.Draw(img)
+    d.text((340, 0), f"符文铭刻系统:", font=header_fnt, fill=(0, 0, 0))
     d.text((280, 70), '''
     合成是一种用来从皮革和龙皮制作远程装
     甲，以及使用宝石，银条或金条制作戒指
