@@ -21,9 +21,6 @@ dat = dat(DATA_PATH)
 millnames = ['', 'K', 'M', 'B', 'T']
 
 
-def get_skill_mastery(skill):
-    return dat.get_skill_mastery(skill)
-
 
 def millify(n):
     n = float(n)

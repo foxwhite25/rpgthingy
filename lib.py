@@ -8,8 +8,7 @@ from .ma import *
 
 cmds: Dict[str, Callable] = {}
 RPG_DB_PATH = os.path.expanduser("~/.hoshino/rpg.db")
-DATA_PATH = os.path.dirname(os.path.realpath(__file__))
-
+DATA_PATH = os.path.expanduser("~/.hoshino/data.db")
 try:
     from hoshino.typing import *
     from hoshino import Service
@@ -54,6 +53,17 @@ try:
         return reg
 except:
     pass
+
+
+def get_skill_mastery(skill):
+    with sqlite3.connect(DATA_PATH) as conn:
+        r = conn.execute(
+            "SELECT id FROM recipes WHERE skill=? ", (skill,)
+        ).fetchall()
+    a = {}
+    for each in r:
+        a[each[0]] = 0
+    return a
 
 
 class RecordDAO:

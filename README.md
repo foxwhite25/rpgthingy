@@ -79,15 +79,17 @@
   ```
 ### 安装
 
-1. 克隆这个仓库
-   ```sh
-   git clone https://github.com/foxwhite25/rpgthingy.git
-   ```
-2. 移动到modules文件夹
-3. 安装必要的Python库
+1. 前往Release下载最新版本
+2. 解压移动到modules文件夹
+3. 将data.db移动到/~/.hoshino/目录
 4. 修改你要修改的东西(_bot.py etc)
-5. 将data.db移动到/~/.hoshino/目录
 
+### 更新
+1. 前往Release下载最新版本
+2. 解压移动到modules文件夹
+3. 将data.db移动到/~/.hoshino/目录并覆盖
+4. 如果有数据库错误，或者Release页面有标识，请运行其下的数据库修复文件
+5. 还有其他新问题请附带你的rpg.db发到Issues
 
 <!-- USAGE EXAMPLES -->
 ## 使用方法
