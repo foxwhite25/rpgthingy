@@ -556,11 +556,9 @@ def cal_crafting(action, uid):
     item = action['action'][1]
     skill = db.get_mastery(uid, 'crafting')[0]
     skill = json.loads(skill)
-    print(action)
-    print(skill)
     preserve = 0
-    preserve += 0.002 * skill[str(item)]
-    if skill[str(item)] == 99:
+    preserve += 0.002 * get_skill_level(skill[str(item)])
+    if get_skill_level(skill[str(item)]) == 99:
         preserve += 0.05
     mastery_pool = sk['crafting'][0]
     if mastery_pool >= 12000000:
