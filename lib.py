@@ -265,7 +265,7 @@ class RecordDAO:
                      "mining": [0, 0], "smithing": [0, 0], "thieving": [0, 0], "farming": [0, 0], "fletching": [0, 0],
                      "crafting": [0, 0], "runecrafting": [0, 0], "herblore": [0, 0], "alternative_magic": [0, 0]}
             inventory = {}
-            equipment = {"helmet": None, "platebody": None, "boots": None, "gloves": None, "cape": None, "quiver": None,
+            equipment = {"helmet": None, "platebody": None,"platelegs": None, "boots": None, "gloves": None, "cape": None, "quiver": None,
                          "ring": None, "amulet": None, "shield": None, "weapon": None}
             action = {"action": None, "start_time": None}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = {}, {}, {}, {}, {
