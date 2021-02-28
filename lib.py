@@ -4,7 +4,6 @@ import os
 import sqlite3
 import os
 import ujson as json
-from .ma import *
 
 cmds: Dict[str, Callable] = {}
 RPG_DB_PATH = os.path.expanduser("~/.hoshino/rpg.db")
