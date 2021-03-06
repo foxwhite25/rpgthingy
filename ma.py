@@ -306,7 +306,7 @@ def inventory(uid, page=1, reverse=True, per_page=20, user_loot=False, loot={}):
 def get_item_image(iid):
     img_path = os.path.join(__BASE[0], f'icons/item/{iid}.png')
     im = Image.open(img_path)
-    im = im.resize((128, 128), Image.ANTIALIAS)
+    im = im.thumbnail((128, 128), Image.ANTIALIAS)
     return im
 
 
