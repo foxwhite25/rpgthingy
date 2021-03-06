@@ -21,7 +21,6 @@ dat = dat(DATA_PATH)
 millnames = ['', 'K', 'M', 'B', 'T']
 
 
-
 def millify(n):
     n = float(n)
     millidx = max(0, min(len(millnames) - 1,
@@ -306,11 +305,11 @@ def inventory(uid, page=1, reverse=True, per_page=20, user_loot=False, loot={}):
 def get_item_image(iid):
     img_path = os.path.join(__BASE[0], f'icons/item/{iid}.png')
     im = Image.open(img_path)
-    im = im.thumbnail((128, 128), Image.ANTIALIAS)
+    im.thumbnail((128, 128), Image.ANTIALIAS)
     return im
 
 
-def list2foward(li,uid):
+def list2foward(li, uid):
     l2 = []
     for msg in li:
         data = {
@@ -497,7 +496,7 @@ def cal_smithing(action, uid):
     for level, a in level_preserve.items():
         if skill[str(item)] > level:
             preserve = a
-    mastery_pool = sk['mining'][0]
+    mastery_pool = sk['smithing'][0]
     if mastery_pool >= 14375000:
         preserve += 0.05
     if mastery_pool >= 28750000:
@@ -562,6 +561,81 @@ def cal_smithing(action, uid):
     return msg
 
 
+def cal_runecrafting(action, uid):
+    sk = json.loads(db.get_player_skill(uid)[1])
+    time = 2
+    start_time = action['start_time']
+    equipment = json.loads(db.get_player_inv(uid)[2])
+    item = action['action'][1]
+    level_sec_chance = {15: 2, 30: 3, 45: 4, 60: 5, 75: 6, 90: 7}
+    skill = db.get_mastery(uid, 'runecrafting')[0]
+    skill = json.loads(skill)
+    sec_chance = 1
+    for level, a in level_sec_chance.items():
+        if skill[str(item)] > level:
+            sec_chance = a
+    preserve = 0
+    mastery_pool = sk['runecrafting'][0]
+    if mastery_pool >= 21000000:
+        preserve += 0.10
+    if mastery_pool >= 39900000:
+        preserve += 0.10
+    inv = json.loads(db.get_player_inv(uid)[1])
+    recipes = dat.get_recipes(item)
+    if 389 <= int(item) <= 398 or 820 <= int(item) <= 829:
+        is_rune = True
+    else:
+        is_rune = False
+    if equipment['cape'] == "456" or equipment['cape'] == "810" or equipment['cape'] == "903":
+        preserve += 0.35
+    fr = Counter(json.loads(recipes[2]))
+    to = Counter(json.loads(recipes[1]))
+    max_consume = 1000000000
+    try:
+        for itm, value in fr.items():
+            if math.floor(inv[itm] / value) < max_consume:
+                max_consume = math.floor(inv[itm] / value)
+    except:
+        return '材料不足，将退出行动'
+    max_it = math.floor(max_consume / (1 - preserve))
+    now = datetime.datetime.timestamp(datetime.datetime.now())
+    seconds = math.floor(now - start_time)
+    if seconds >= 43200:
+        seconds = 43200
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    time_str = ("%d小时%02d分%02d秒" % (h, m, s))
+    iteration = math.floor(seconds / time)
+    if max_it < iteration:
+        iteration = max_it
+    for k in fr.keys():
+        fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+    if is_rune:
+        for k in to.keys():
+            to[k] = math.floor(to[k] * iteration * sec_chance)
+    else:
+        for k in to.keys():
+            to[k] = math.floor(to[k] * iteration)
+    inv = Counter(inv) - fr + to
+    inv = json.dumps(dict(inv))
+    db.update_player_inv(uid, inv)
+    mxp = mxpd(uid, 'smithing', item, time, iteration)
+    xp = recipes[4]
+    if mastery_pool >= 4200000:
+        mxp = int(mxp * 1.05)
+    if mastery_pool >= 10500000:
+        xp = int(xp * 2.5)
+    xp = xp * iteration
+    db.add_skill_xp(uid, 'runecrafting', xp)
+    db.add_master_xp(uid, 'runecrafting', item, mxp)
+    db.add_mastery_pool(uid, 'runecrafting', int(mxp * 0.25))
+    fr_image = str(inventory(0, user_loot=True, loot=fr))
+    to_image = str(inventory(0, user_loot=True, loot=to))
+    msg = f'''经过了{time_str}，进行了{iteration}次加工，消耗了:{fr_image}
+    并获得了{xp}点经验值和{mxp}点{dat.get_name_from_id(item)[0]}熟练度以及:{to_image}'''
+    return msg
+
+
 def cal_crafting(action, uid):
     sk = json.loads(db.get_player_skill(uid)[1])
     time = 3
@@ -606,7 +680,7 @@ def cal_crafting(action, uid):
     for k in fr.keys():
         fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
     for k in to.keys():
-        to[k] = math.floor(to[k] * iteration )
+        to[k] = math.floor(to[k] * iteration)
     if mastery_pool >= 22800000 and 315 < int(item) < 334:
         for k in to.keys():
             to[k] = math.floor(to[k] * iteration * 2)
@@ -822,7 +896,7 @@ def runecrafting(uid):
     mastery = db.get_mastery(uid, 'runecrafting')[0]
     mastery = json.loads(mastery)
     sk = get_gather_skill_mastery(uid, 'runecrafting')
-    img = Image.new('RGBA', (900, 6500), (255, 0, 0, 0))
+    img = Image.new('RGBA', (900, 11700), (255, 0, 0, 0))
     _path = os.path.join(__BASE[0], 'icons/skill/rune.png')
     im = Image.open(_path)
     im = im.resize((340, 340), Image.ANTIALIAS)
@@ -831,11 +905,15 @@ def runecrafting(uid):
     header_fnt = ImageFont.truetype(font_path, 100)
     fnt = ImageFont.truetype(font_path, 30)
     d = ImageDraw.Draw(img)
-    d.text((340, 0), f"符文铭刻系统:", font=header_fnt, fill=(0, 0, 0))
+    d.text((340, 0), f"符石加工系统:", font=header_fnt, fill=(0, 0, 0))
     d.text((280, 70), '''
-    合成是一种用来从皮革和龙皮制作远程装
-    甲，以及使用宝石，银条或金条制作戒指
-    和项链的技能。''', font=fnt, fill=(0, 0, 0))
+    符石加工是一项技能，使玩家可以使用符文
+    精华和原木来制作符文和魔法装备。 
+    符文可以在魔法中使用来施放咒语，
+    在草药学中可以使用来制造药水。 
+    所有符石加工动作需要2秒。 
+    装备符石加工技能斗篷可在制造符文
+    时提供35％的机会不消耗符文精华。''', font=fnt, fill=(0, 0, 0))
     if sk['slv'] >= 99:
         color = (48, 199, 141)
     else:
@@ -852,6 +930,7 @@ def runecrafting(uid):
     for item, skil in mastery.items():
         o = dat.get_recipes(item)
         if o[5] <= sk['slv']:
+            print(item)
             im = get_item_image(item)
             im = im.resize((100, 100), Image.ANTIALIAS)
             img.paste(im, (0, 400 + n * 120), im)
@@ -872,8 +951,8 @@ def runecrafting(uid):
             im = im.resize((30, 30), Image.ANTIALIAS)
             img.paste(im, (385, 440 + n * 120), im)
         n += 1
-    im = Image.new('RGB', (1000, 6400), (0, 0, 0, 0))
-    im2 = Image.new('RGB', (950, 6400 - 50), (255, 255, 255))
+    im = Image.new('RGB', (1000, 10700), (0, 0, 0, 0))
+    im2 = Image.new('RGB', (950, 10700 - 50), (255, 255, 255))
     im.convert("RGBA")
     im.paste(im2, (25, 25))
     im.paste(img, (50, 50), img)

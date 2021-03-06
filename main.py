@@ -390,6 +390,53 @@ async def cmd_mine(bot: HoshinoBot, ev: CQEvent, args):
         await bot.send(ev, f'{args[0]}并不是可挖掘的矿物')
 
 
+@reg_cmd(['制符', '符文铭刻', '铭刻', '符石加工', '加工'])
+async def cmd_runecrafting(bot: HoshinoBot, ev: CQEvent, args):
+    uid = ev['user_id']
+    if is_bp_full(uid):
+        await bot.send(ev, '背包已满，请使用?售卖 [物品ID] [数量]来清理背包，或者?购买背包 (数量或者max)来增加背包容量')
+        return
+    try:
+        a = args[0]
+    except IndexError:
+        await bot.send(ev, '少女祈祷中...')
+        msg = runecrafting(uid)
+        await bot.send(ev, str(msg) + '\n发送?加工 [物品ID]开始锻造')
+        return
+    skill = get_gather_skill_mastery(uid, "runecrafting")
+    inv = db.get_player_inv(uid)[1]
+    inv = json.loads(inv)
+    recipes = dat.get_recipes(args[0])
+    if recipes[5] > skill["slv"]:
+        await bot.send(ev, f"你的等级不足，无法铭刻{dat.get_item_from_col('id', args[0])[1]}")
+        return
+    if str(args[0]) in dat.get_all_recipes('符文铭刻'):
+        if is_player_in_action(uid):
+            a = is_player_in_action(uid)
+            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            return
+        else:
+            fr = json.loads(recipes[2])
+            for item, value in fr.items():
+                try:
+                    a = inv[item]
+                    if a >= value:
+                        pass
+                    else:
+                        await bot.send(ev, f"你的{dat.get_item_from_col('id', item)[1]}不足")
+                        return
+                except:
+                    await bot.send(ev, f"你的{dat.get_item_from_col('id', item)[1]}不足")
+                    return
+            db.update_player_action(['加工', args[0]], uid)
+            img = get_item_image(args[0])
+            await bot.send(ev,
+                           f"{MessageSegment.image(util.pic2b64(img))}\n成功开始了加工{dat.get_item_from_col('id', args[0])[1]}行动\n当你想要取消的时候输入?结算行动")
+            return
+    else:
+        await bot.send(ev, f'{dat.get_item_from_col("id", args[0])[1]}并不是可加工的物品')
+
+
 @reg_cmd(['烧制物品', '炼制', '锻造', '熔炼'])
 async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
@@ -499,6 +546,10 @@ async def cmd_complete(bot: HoshinoBot, ev: CQEvent, args):
             return
         if action['action'][0] == '合成':
             msg = cal_crafting(action, uid)
+            await bot.send(ev, msg)
+            return
+        if action['action'][0] == '加工':
+            msg = cal_runecrafting(action,uid)
             await bot.send(ev, msg)
             return
     else:
