@@ -310,6 +310,21 @@ def get_item_image(iid):
     return im
 
 
+def list2foward(li,uid):
+    l2 = []
+    for msg in li:
+        data = {
+            "type": "node",
+            "data": {
+                "name": '某lsp',
+                "uin": str(uid),
+                "content": msg
+            }
+        }
+        l2.append(data)
+    return l2
+
+
 def default_arg(default, args, num):
     try:
         a = args[num]

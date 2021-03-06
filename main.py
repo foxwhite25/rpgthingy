@@ -11,7 +11,9 @@ __BASE = os.path.split(os.path.realpath(__file__))
 IMAGE_DIR_PATH = os.path.join(__BASE[0], 'icons')
 ITEM_DIR_PATH = os.path.join(IMAGE_DIR_PATH, 'item')
 MONSTER_DIR_PATH = os.path.join(IMAGE_DIR_PATH, 'monster')
-GAME_NAME = "我也不知道应该叫啥"
+GAME_NAME = "我也不知道应该叫啥"  # RPG名字
+BOT_NAME = 'poi'  # 机器人名字
+BOT_QQ = '2740156726'
 db = RecordDAO(RPG_DB_PATH)
 DATA_PATH = os.path.expanduser("~/.hoshino/data.db")
 dat = dat(DATA_PATH)
@@ -553,6 +555,7 @@ async def give(bot: HoshinoBot, ev: CQEvent, args):
 @reg_cmd(['售卖', '出售'])
 async def cmd_sell(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
+    gid = ev['group_id']
     a = 0
     black_list = [335, 336, 337, 338, 339]
     sell_list = {}
@@ -569,6 +572,7 @@ async def cmd_sell(bot: HoshinoBot, ev: CQEvent, args):
     if not (len(args) % 2) == 0:
         await bot.send(ev, f'未知格式，格式为:?出售 [物品ID1] [数量1(max代表全部)] [物品ID2] [数量2(max代表全部)] ...')
         return
+    li = []
     for item, amount in sell_list.items():
         if isinstance(amount, int) or amount == 'max':
             inv = db.get_player_inv(uid)[1]
@@ -586,20 +590,22 @@ async def cmd_sell(bot: HoshinoBot, ev: CQEvent, args):
                 if amount == 'max':
                     amount = inv[str(item[0])]
             except KeyError:
-                await bot.send(ev, f'你的{item[1]}不足{amount}')
+                li.append(f'你的{item[1]}不足{amount}')
                 continue
             if inv[str(item[0])] < amount:
-                await bot.send(ev, f'你的{item[1]}不足{amount}')
+                li.append(f'你的{item[1]}不足{amount}')
                 continue
             coin = db.get_player_stat(uid)[2]
             db.update_player_stat(uid, 'coin', coin + amount * item[3])
             inv[str(item[0])] = inv[str(item[0])] - amount
             db.update_player_inv(uid, json.dumps(inv, indent=4))
-            await bot.send(ev, f'已经使用{amount}个{item[1]}兑换为{amount * item[3]}GP')
+            li.append(f'已经使用{amount}个{item[1]}兑换为{amount * item[3]}GP')
             continue
         else:
             await bot.send(ev, f'未知格式，格式为:?出售 [物品ID1] [数量1(max代表全部)] [物品ID2] [数量2(max代表全部)] ...')
-            continue
+            return
+    msg = list2foward(li, uid)
+    await bot.send_group_forward_msg(group_id=gid, messages=msg)
 
 
 @reg_cmd(['help', '帮助', '说明'])

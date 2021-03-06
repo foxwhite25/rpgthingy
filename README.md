@@ -154,7 +154,7 @@
 ## 致谢
 
 * []()<a href="https://github.com/Ice-Cirno/HoshinoBot/">Hoshino</a>
-* []()<a href="https://github.com/GWYOG/GWYOG-Hoshino-plugins">GWYOG-Hoshino-plugins</a>
+* []()<a href="https://github.com/Needle-in-the-sea">@Needle-in-the-sea</a> 的数据库中文本地化
 
 
 
