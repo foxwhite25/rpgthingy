@@ -1,19 +1,25 @@
-from collections import Counter
-
-import ujson as json
-import math
 import os
 import sqlite3
-import textwrap
-from PIL import Image, ImageFont, ImageDraw
+import json
 
-os.chdir(r'C:\Users\vctxi\.hoshino')
-conn = sqlite3.connect('data.db')
-r = conn.execute(
-    "SELECT id FROM recipes WHERE skill='符文铭刻' ",
-).fetchall()
-print(r)
-a = {}
-for each in r:
-    a[each[0]] = 0
-print(a)
+RPG_DB_PATH = os.path.expanduser("~/.hoshino/rpg.db")
+js = json.dumps({'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0}, indent=4)
+
+
+class RecordDAO:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    def connect(self):
+        return sqlite3.connect(self.db_path)
+
+    def update(self):
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE mastery SET woodcutting=?", (js,)
+            )
+
+
+db = RecordDAO(RPG_DB_PATH)
+db.update()

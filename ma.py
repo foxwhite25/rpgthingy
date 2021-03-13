@@ -98,6 +98,17 @@ def add(dict1, dict2):
                 add(dict1[key], dict2[key])
 
 
+def preserve_rng(iteration, chance):
+    time = iteration
+    prob = chance
+    realtime = time
+    while not time <= 1:
+        n = numpy.random.binomial(time, prob)
+        time = n
+        realtime += n
+    return realtime
+
+
 def f(x):
     if x == 1:
         return 0
@@ -123,7 +134,7 @@ def get_bp_cost(x):
 
 
 def mxpd(uid, action, item, spa, iteration):
-    milestone = mining_milestone(uid) + smithing_milestone(uid) + crafting_milestone(uid)
+    milestone = mining_milestone(uid) + smithing_milestone(uid) + crafting_milestone(uid) + runecrafting_milestone(uid)
     mastery = db.get_mastery(uid, action)[0]
     mastery = json.loads(mastery)
     total_mastery = len(mastery) * 99
@@ -140,6 +151,11 @@ ore = [{'id': 45, 'level': 1, 'exp': 7}, {'id': 46, 'level': 1, 'exp': 7}, {'id'
        {'id': 48, 'level': 30, 'exp': 18}, {'id': 49, 'level': 30, 'exp': 25}, {'id': 50, 'level': 40, 'exp': 28},
        {'id': 51, 'level': 50, 'exp': 65}, {'id': 52, 'level': 70, 'exp': 71}, {'id': 53, 'level': 80, 'exp': 86},
        {'id': 54, 'level': 95, 'exp': 101}, {'id': 388, 'level': 1, 'exp': 5}]
+wood = [{'id': '0', 'level': '1', 'exp': '10', 'time': '3'}, {'id': '1', 'level': '10', 'exp': '15', 'time': '4'},
+        {'id': '2', 'level': '25', 'exp': '22', 'time': '5'}, {'id': '3', 'level': '35', 'exp': '30', 'time': '6'},
+        {'id': '4', 'level': '45', 'exp': '40', 'time': '8'}, {'id': '5', 'level': '55', 'exp': '60', 'time': '10'},
+        {'id': '6', 'level': '60', 'exp': '80', 'time': '12'}, {'id': '7', 'level': '75', 'exp': '100', 'time': '20'},
+        {'id': '8', 'level': '90', 'exp': '180', 'time': '15'}]
 gem = [{'id': "128", 'weight': 0.5}, {'id': "129", 'weight': 0.175}, {'id': "130", 'weight': 0.175},
        {'id': "131", 'weight': 0.1},
        {'id': "132", 'weight': 0.05}]
@@ -354,6 +370,12 @@ def get_ore_from_id(r):
             return each
 
 
+def get_tree_from_id(r):
+    for each in wood:
+        if each["id"] == r:
+            return each
+
+
 def get_gem_num(r):
     gem_list = []
     gem_weight = []
@@ -386,7 +408,7 @@ def mining_milestone(uid):
 
 def smithing_milestone(uid):
     skill = get_gather_skill_mastery(uid, "smithing")
-    recipes = dat.get_all_recipes_level('smithing')
+    recipes = dat.get_all_recipes_level('锻造')
     a = 0
     for r in recipes:
         if r <= skill["slv"]:
@@ -396,7 +418,17 @@ def smithing_milestone(uid):
 
 def crafting_milestone(uid):
     skill = get_gather_skill_mastery(uid, "crafting")
-    recipes = dat.get_all_recipes_level('crafting')
+    recipes = dat.get_all_recipes_level('合成')
+    a = 0
+    for r in recipes:
+        if r <= skill["slv"]:
+            a += 1
+    return a
+
+
+def runecrafting_milestone(uid):
+    skill = get_gather_skill_mastery(uid, "crafting")
+    recipes = dat.get_all_recipes_level('符文铭刻')
     a = 0
     for r in recipes:
         if r <= skill["slv"]:
@@ -512,9 +544,9 @@ def cal_smithing(action, uid):
         for itm, value in fr.items():
             if math.floor(inv[itm] / value) < max_consume:
                 max_consume = math.floor(inv[itm] / value)
-    except:
+    except Exception:
         return '材料不足，将退出行动'
-    max_it = math.floor(max_consume / (1 - preserve))
+    max_it = preserve_rng(max_consume, preserve)
     now = datetime.datetime.timestamp(datetime.datetime.now())
     seconds = math.floor(now - start_time)
     if seconds >= 43200:
@@ -526,9 +558,9 @@ def cal_smithing(action, uid):
     if max_it < iteration:
         iteration = max_it
     for k in fr.keys():
-        fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+        fr[k] = fr[k] * iteration - numpy.random.binomial(iteration, preserve)
     for k in to.keys():
-        to[k] = math.floor(to[k] * iteration * (1 + sec_chance))
+        to[k] = to[k] * iteration + numpy.random.binomial(iteration, sec_chance)
     if equipment['cape'] == "457" or equipment['cape'] == "810" or equipment['cape'] == "903":
         try:
             fr['48'] = round(fr['48'] / 2)
@@ -597,7 +629,7 @@ def cal_runecrafting(action, uid):
                 max_consume = math.floor(inv[itm] / value)
     except:
         return '材料不足，将退出行动'
-    max_it = math.floor(max_consume / (1 - preserve))
+    max_it = preserve_rng(max_consume, preserve)
     now = datetime.datetime.timestamp(datetime.datetime.now())
     seconds = math.floor(now - start_time)
     if seconds >= 43200:
@@ -609,13 +641,13 @@ def cal_runecrafting(action, uid):
     if max_it < iteration:
         iteration = max_it
     for k in fr.keys():
-        fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+        fr[k] = fr[k] * iteration - numpy.random.binomial(iteration, preserve)
     if is_rune:
         for k in to.keys():
-            to[k] = math.floor(to[k] * iteration * sec_chance)
+            to[k] = to[k] * iteration * sec_chance
     else:
         for k in to.keys():
-            to[k] = math.floor(to[k] * iteration)
+            to[k] = to[k] * iteration
     inv = Counter(inv) - fr + to
     inv = json.dumps(dict(inv))
     db.update_player_inv(uid, inv)
@@ -666,7 +698,7 @@ def cal_crafting(action, uid):
                 max_consume = math.floor(inv[itm] / value)
     except:
         return '材料不足，将退出行动'
-    max_it = math.floor(max_consume / (1 - preserve))
+    max_it = preserve_rng(max_consume, preserve)
     now = datetime.datetime.timestamp(datetime.datetime.now())
     seconds = math.floor(now - start_time)
     if seconds >= 43200:
@@ -678,9 +710,9 @@ def cal_crafting(action, uid):
     if max_it < iteration:
         iteration = max_it
     for k in fr.keys():
-        fr[k] = math.ceil(fr[k] * iteration * (1 - preserve))
+        fr[k] = fr[k] * iteration - numpy.random.binomial(iteration, preserve)
     for k in to.keys():
-        to[k] = math.floor(to[k] * iteration)
+        to[k] = to[k] * iteration
     if mastery_pool >= 22800000 and 315 < int(item) < 334:
         for k in to.keys():
             to[k] = math.floor(to[k] * iteration * 2)
@@ -773,6 +805,75 @@ def mining(uid):
         n += 1
     im = Image.new('RGB', (1000, 1920), (0, 0, 0, 0))
     im2 = Image.new('RGB', (950, 1920 - 50), (255, 255, 255))
+    im.convert("RGBA")
+    im.paste(im2, (25, 25))
+    im.paste(img, (50, 50), img)
+    im.paste(Image.new('RGBA', (1000, 20), (0, 0, 0)), (0, 400))
+    im.paste(Image.new('RGBA', (1000, 20), (0, 0, 0)), (0, 530))
+    return MessageSegment.image(util.pic2b64(im))
+
+
+def woodcutting(uid):
+    mastery = db.get_mastery(uid, 'woodcutting')[0]
+    mastery = json.loads(mastery)
+    picks = dat.get_shop()['axe']
+    pick = db.get_upgrade(uid)['axe']
+    pick_msg = picks[pick][1]
+    pick = picks[pick]
+    sk = get_gather_skill_mastery(uid, 'woodcutting')
+    img = Image.new('RGBA', (900, 1780), (255, 0, 0, 0))
+    _path = os.path.join(__BASE[0], 'icons/skill/wood.png')
+    im = Image.open(_path)
+    im = im.resize((340, 340), Image.ANTIALIAS)
+    img.paste(im, (0, 0), im)
+    font_path = os.path.join(__BASE[0], 'random.ttf')
+    header_fnt = ImageFont.truetype(font_path, 100)
+    fnt = ImageFont.truetype(font_path, 30)
+    d = ImageDraw.Draw(img)
+    d.text((340, 0), f"伐木系统:", font=header_fnt, fill=(0, 0, 0))
+    d.text((280, 70), '''
+    伐木技能用于收集原木，原木可以在
+    符石加工，制箭和生火技能上使用，
+    每个伐木动作都有0.5%几率掉落鸟巢
+    ，可以通过鸟巢药水和线索追寻着徽章
+    增加。伐木99级将解锁伐木技能斗篷，
+    装备该斗篷令伐木时间减半。
+    购买自然大师升级可以将伐木时间
+    减少15％。''', font=fnt, fill=(0, 0, 0))
+    if sk['slv'] >= 99:
+        color = (48, 199, 141)
+    else:
+        color = (92, 172, 229)
+    pbar = progressBar((45, 53, 66), color, 0, 0, 800, 20, sk['slv'] / 99)
+    box = round_rectangle((150, 50), 10, (48, 199, 141), f"{sk['slv']}/99")
+    box2 = round_rectangle((150, 50), 10, (92, 172, 229), f"{millify(sk['sxp'])}")
+    box3 = round_rectangle((150, 50), 10, (229, 174, 103), pick_msg)
+    d.text((0, 390), f"等级:", font=ImageFont.truetype(font_path, 45), fill=(0, 0, 0))
+    d.text((300, 390), f"经验:", font=ImageFont.truetype(font_path, 45), fill=(0, 0, 0))
+    d.text((600, 390), f"斧头:", font=ImageFont.truetype(font_path, 45), fill=(0, 0, 0))
+    img.paste(box, (100, 390), box)
+    img.paste(box2, (400, 390), box2)
+    img.paste(box3, (700, 390), box3)
+    img.paste(pbar, (50, 450), pbar)
+    n = 1
+    for item, skil in sorted(mastery.items()):
+        item = str(item)
+        im = get_item_image(item)
+        im = im.resize((100, 100), Image.ANTIALIAS)
+        img.paste(im, (0, 400 + n * 120), im)
+        level = get_skill_level(skil)
+        d.text((110, 400 + n * 120), f"{dat.get_name_from_id(item)[0]}的熟练度:{level}/99", font=fnt, fill=(0, 0, 0))
+        if level >= 99:
+            color = (48, 199, 141)
+        else:
+            color = (92, 172, 229)
+        pbar = progressBar((45, 53, 66), color, 0, 0, 700, 10, level / 99)
+        img.paste(pbar, (110, 440 + n * 120), pbar)
+        o = get_tree_from_id(item)
+        d.text((110, 470 + n * 120), f"所需等级:{o['level']} 每一次获得经验:{o['exp']} 采集须时:{o['time']}s ID:{o['id']}", font=fnt, fill=(0, 0, 0))
+        n += 1
+    im = Image.new('RGB', (1000, 1680), (0, 0, 0, 0))
+    im2 = Image.new('RGB', (950, 1680 - 50), (255, 255, 255))
     im.convert("RGBA")
     im.paste(im2, (25, 25))
     im.paste(img, (50, 50), img)

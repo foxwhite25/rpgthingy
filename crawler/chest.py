@@ -10,7 +10,8 @@ import ujson as json
 import re
 import cairosvg
 
-os.chdir(r'C:\Users\vctxi\PycharmProjects\rpgthingy')
+RPG_DB_PATH = os.path.expanduser("~/.hoshino/data.db")
+os.chdir(RPG_DB_PATH)
 url = 'https://wiki.melvoridle.com/index.php?title=Chest_Loot_Tables'
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 '
@@ -28,8 +29,10 @@ opener.addheaders = [('User-agent',
                       'Opera/9.80 (Android 2.3.4; Linux; Opera Mobi/build-1107180945; U;en-GB) Presto/2.8.149 Version/11.10')]
 request.install_opener(opener)
 
+
 def p2f(x):
     return float(x.strip('%')) / 100
+
 
 def get_url_item(x):
     r = conn.execute(
@@ -39,6 +42,7 @@ def get_url_item(x):
     if not r:
         print("Cannot get id from " + x)
     return r[0]
+
 
 def get_urls(url):
     resp = requests.get(url, headers=headers)
@@ -53,7 +57,7 @@ def get_urls(url):
     for urls in html.xpath(
             r'//*[@id="mw-content-text"]/div//table//tbody/tr/td/span/a/text()'):
         blacklist.append(urls)
-    detail_urls = list(set(detail_urls)-set(blacklist))
+    detail_urls = list(set(detail_urls) - set(blacklist))
     for each in detail_urls:
         a.append(get_url_item(each)[0])
     return a
@@ -85,8 +89,9 @@ def get_data(url):
             up = int(q[0])
             down = int(q[1])
         key = get_item_id(key)[0]
-        res[key] = float(chance[nums]) * (float(up) + float(down))/2
+        res[key] = float(chance[nums]) * (float(up) + float(down)) / 2
     res = json.dumps(res)
+    print(res)
     c = conn.cursor()
     c.execute('''insert or replace into chest (
         ID,

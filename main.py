@@ -437,6 +437,46 @@ async def cmd_runecrafting(bot: HoshinoBot, ev: CQEvent, args):
         await bot.send(ev, f'{dat.get_item_from_col("id", args[0])[1]}并不是可加工的物品')
 
 
+@reg_cmd(['伐木', '砍树', '林业'])
+async def cmd_woodcutting(bot: HoshinoBot, ev: CQEvent, args):
+    uid = ev['user_id']
+    if not db.is_player_exist(uid):
+        await bot.send(ev, '你还未创建角色！请输入?创建角色 角色名')
+        return
+    if is_bp_full(uid):
+        await bot.send(ev, '背包已满，请使用?售卖 [物品ID] [数量]来清理背包，或者?购买背包 (数量或者max)来增加背包容量')
+        return
+    try:
+        a = args[0]
+    except IndexError:
+        await bot.send(ev, '少女祈祷中...')
+        msg = woodcutting(uid)
+        await bot.send(ev, str(msg) + '\n发送?伐木 [物品ID]开始砍伐')
+        return
+    uid = ev['user_id']
+    skill = get_gather_skill_mastery(uid, "woodcutting")
+    yes = []
+    for ores in ore:
+        if ores["level"] <= skill["slv"]:
+            yes.append(ores["id"])
+    if 45 <= args[0] <= 54 or args[0] == 388:
+        if is_player_in_action(uid):
+            a = is_player_in_action(uid)
+            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            return
+        else:
+            if is_str_in_list(yes, args[0]):
+                db.update_player_action(['砍伐', args[0]], uid)
+                img = get_item_image(args[0])
+                await bot.send(ev,
+                               f"{MessageSegment.image(util.pic2b64(img))}\n成功开始了砍伐{dat.get_item_from_col('id', args[0])[1]}行动\n当你想要取消的时候输入?结算行动")
+                return
+            else:
+                await bot.send(ev, f"你的等级不足，无法砍伐{dat.get_item_from_col('id', args[0])[1]}")
+    else:
+        await bot.send(ev, f'{args[0]}并不是可砍伐的树木')
+
+
 @reg_cmd(['烧制物品', '炼制', '锻造', '熔炼'])
 async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
@@ -549,7 +589,7 @@ async def cmd_complete(bot: HoshinoBot, ev: CQEvent, args):
             await bot.send(ev, msg)
             return
         if action['action'][0] == '加工':
-            msg = cal_runecrafting(action,uid)
+            msg = cal_runecrafting(action, uid)
             await bot.send(ev, msg)
             return
     else:
