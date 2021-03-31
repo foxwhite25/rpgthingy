@@ -21,5 +21,6 @@ class RecordDAO:
             )
 
 
-db = RecordDAO(RPG_DB_PATH)
-db.update()
+# db = RecordDAO(RPG_DB_PATH)
+# db.update()
+# 有需要吧注释去掉

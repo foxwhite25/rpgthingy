@@ -15,7 +15,7 @@ try:
     sv = Service('random_idle', bundle='pcr娱乐')
 
 
-    @sv.on_prefix('?')  # 指令执行
+    @sv.on_prefix(['?', '？'])  # 指令执行
     async def exec_cmd(bot: HoshinoBot, ev: CQEvent):
         # if ev['message_type'] != 'group':
         #     await bot.send(ev, '请在QQ群中使用本插件')
@@ -264,12 +264,32 @@ class RecordDAO:
                      "mining": [0, 0], "smithing": [0, 0], "thieving": [0, 0], "farming": [0, 0], "fletching": [0, 0],
                      "crafting": [0, 0], "runecrafting": [0, 0], "herblore": [0, 0], "alternative_magic": [0, 0]}
             inventory = {}
-            equipment = {"helmet": None, "platebody": None,"platelegs": None, "boots": None, "gloves": None, "cape": None, "quiver": None,
+            equipment = {"helmet": None, "platebody": None, "platelegs": None, "boots": None, "gloves": None,
+                         "cape": None, "quiver": None,
                          "ring": None, "amulet": None, "shield": None, "weapon": None}
             action = {"action": None, "start_time": None}
-            woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0}, {}, {}, {}, {
-                45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0,
-                388: 0}, get_skill_mastery('锻造'), {}, {}, {}, get_skill_mastery('合成'), get_skill_mastery('符文铭刻'), {}
+            woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = {
+                                                                                                                                              '0': 0,
+                                                                                                                                              '1': 0,
+                                                                                                                                              '2': 0,
+                                                                                                                                              '3': 0,
+                                                                                                                                              '4': 0,
+                                                                                                                                              '5': 0,
+                                                                                                                                              '6': 0,
+                                                                                                                                              '7': 0,
+                                                                                                                                              '8': 0}, {}, {}, {}, {
+                                                                                                                                              45: 0,
+                                                                                                                                              46: 0,
+                                                                                                                                              47: 0,
+                                                                                                                                              48: 0,
+                                                                                                                                              49: 0,
+                                                                                                                                              50: 0,
+                                                                                                                                              51: 0,
+                                                                                                                                              52: 0,
+                                                                                                                                              53: 0,
+                                                                                                                                              54: 0,
+                                                                                                                                              388: 0}, get_skill_mastery(
+                '锻造'), {}, {}, {}, get_skill_mastery('合成'), get_skill_mastery('符文铭刻'), {}
             upgrade = {"pickaxe": 0, "axe": 0, "fishing_rod": 0, "cooking_fire": 0}
             charge = {"335": "None", "336": "None", "337": "None", "338": "None", "339": "None"}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = json.dumps(
@@ -359,7 +379,7 @@ class dat:
             a.append(each[0])
         return a
 
-    def get_skill_mastery(self,skill):
+    def get_skill_mastery(self, skill):
         with self.connect() as conn:
             r = conn.execute(
                 "SELECT level FROM recipes WHERE skill=? ", (skill,)

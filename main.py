@@ -131,7 +131,15 @@ async def cmd_buy(bot: HoshinoBot, ev: CQEvent, args):
     if iid == '镐子':
         picks = dat.get_shop()['pickaxe']
         pick = db.get_upgrade(uid)['pickaxe']
-        picks = picks[pick + 1]
+        try:
+            picks = picks[pick + 1]
+        except Exception:
+            await bot.send(ev, f'你的镐子已经满级了')
+            return
+        skill = get_gather_skill_mastery(uid, 'mining')
+        if skill['slv'] < picks[2]:
+            await bot.send(ev, f'你的采矿等级不足{picks[2]}，无法购买{picks[1]}')
+            return
         if picks[5] > current_coin:
             await bot.send(ev, f'你的GP不足{picks[5]}无法购买{picks[1]}')
             return
@@ -141,6 +149,42 @@ async def cmd_buy(bot: HoshinoBot, ev: CQEvent, args):
         current_upgrade = json.dumps(current_upgrade)
         db.update_player_upgrade(uid, current_upgrade)
         await bot.send(ev, f'成功使用{picks[5]}GP购买{picks[1]}')
+        return
+    if iid == '斧头':
+        axes = dat.get_shop()['axe']
+        axe = db.get_upgrade(uid)['axe']
+        try:
+            axes = axes[axe + 1]
+        except Exception:
+            await bot.send(ev, f'你的斧头已经满级了')
+            return
+        skill = get_gather_skill_mastery(uid, 'woodcutting')
+        if skill['slv'] < axes[2]:
+            await bot.send(ev, f'你的伐木等级不足{axes[2]}，无法购买{axes[1]}')
+            return
+        if axes[4] > current_coin:
+            await bot.send(ev, f'你的GP不足{axes[4]}无法购买{axes[1]}')
+            return
+        db.update_player_stat(uid, 'coin', current_coin - axes[4])
+        current_upgrade = db.get_upgrade(uid)
+        current_upgrade['axe'] += 1
+        current_upgrade = json.dumps(current_upgrade)
+        db.update_player_upgrade(uid, current_upgrade)
+        await bot.send(ev, f'成功使用{axes[4]}GP购买{axes[1]}')
+        return
+    if iid == '双倍斧头':
+        if 1000000 > current_coin:
+            await bot.send(ev, f'你的GP不足1000000无法购买双倍斧头')
+            return
+        current_upgrade = db.get_upgrade(uid)
+        if 'double_wood' in current_upgrade:
+            await bot.send(ev, f'你已经拥有双倍斧头了')
+            return
+        db.update_player_stat(uid, 'coin', current_coin - 1000000)
+        current_upgrade['double_wood'] = 1
+        current_upgrade = json.dumps(current_upgrade)
+        db.update_player_upgrade(uid, current_upgrade)
+        await bot.send(ev, f'成功使用1000000GP购买双倍斧头')
         return
     amount = default_arg(1, args, 1)
     if not isinstance(amount, int) and amount != 'max':
@@ -326,7 +370,14 @@ async def cmd_crafting(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('合成'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            if not isinstance(a[1], tuple):
+                await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+                return
+            name = []
+            for each in a:
+                name.append(dat.get_item_from_col('id', each)[1])
+            msg = '和'.join(name)
+            await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
         else:
             fr = json.loads(recipes[2])
@@ -375,7 +426,14 @@ async def cmd_mine(bot: HoshinoBot, ev: CQEvent, args):
     if 45 <= args[0] <= 54 or args[0] == 388:
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            if not isinstance(a[1], tuple):
+                await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+                return
+            name = []
+            for each in a:
+                name.append(dat.get_item_from_col('id', each)[1])
+            msg = '和'.join(name)
+            await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
         else:
             if is_str_in_list(yes, args[0]):
@@ -413,7 +471,14 @@ async def cmd_runecrafting(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('符文铭刻'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            if not isinstance(a[1], tuple):
+                await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+                return
+            name = []
+            for each in a:
+                name.append(dat.get_item_from_col('id', each)[1])
+            msg = '和'.join(name)
+            await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
         else:
             fr = json.loads(recipes[2])
@@ -456,25 +521,54 @@ async def cmd_woodcutting(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
     skill = get_gather_skill_mastery(uid, "woodcutting")
     yes = []
-    for ores in ore:
-        if ores["level"] <= skill["slv"]:
-            yes.append(ores["id"])
-    if 45 <= args[0] <= 54 or args[0] == 388:
-        if is_player_in_action(uid):
-            a = is_player_in_action(uid)
+    for woods in wood:
+        if int(woods["level"]) <= skill["slv"]:
+            yes.append(woods["id"])
+    print(yes)
+    is_double = len(args) == 2 and 'double_wood' in db.get_upgrade(uid)
+    if 0 >= args[0] >= 8:
+        await bot.send(ev, f'{args[0]}并不是可砍伐的树木')
+        return
+    if is_double and 0 >= args[1] >= 8:
+        await bot.send(ev, f'{args[1]}并不是可砍伐的树木')
+        return
+    if is_double and args[1] == args[0]:
+        await bot.send(ev, f'双重砍伐需要两个不同的树木')
+        return
+    if is_player_in_action(uid):
+        a = is_player_in_action(uid)
+        if isinstance(a[1], int):
             await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
             return
+        name = []
+        for each in a:
+            name.append(dat.get_item_from_col('id', each)[1])
+        msg = '和'.join(name)
+        await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
+        return
+    elif not is_double:
+        if str(args[0]) in yes:
+            db.update_player_action(['砍伐', args[0]], uid)
+            img = get_item_image(args[0])
+            await bot.send(ev,
+                           f"{MessageSegment.image(util.pic2b64(img))}\n成功开始了砍伐{dat.get_item_from_col('id', args[0])[1]}行动\n当你想要取消的时候输入?结算行动")
+            return
         else:
-            if is_str_in_list(yes, args[0]):
-                db.update_player_action(['砍伐', args[0]], uid)
-                img = get_item_image(args[0])
-                await bot.send(ev,
-                               f"{MessageSegment.image(util.pic2b64(img))}\n成功开始了砍伐{dat.get_item_from_col('id', args[0])[1]}行动\n当你想要取消的时候输入?结算行动")
-                return
-            else:
-                await bot.send(ev, f"你的等级不足，无法砍伐{dat.get_item_from_col('id', args[0])[1]}")
+            await bot.send(ev, f"你的等级不足，无法砍伐{dat.get_item_from_col('id', args[0])[1]}")
+            return
     else:
-        await bot.send(ev, f'{args[0]}并不是可砍伐的树木')
+        if str(args[0]) not in yes:
+            await bot.send(ev, f"你的等级不足，无法砍伐{dat.get_item_from_col('id', args[0])[1]}")
+            return
+        if str(args[1]) not in yes:
+            await bot.send(ev, f"你的等级不足，无法砍伐{dat.get_item_from_col('id', args[1])[1]}")
+            return
+        db.update_player_action(['砍伐', (args[0], args[1])], uid)
+        img = get_item_image(args[0])
+        img2 = get_item_image(args[1])
+        await bot.send(ev,
+                       f"{MessageSegment.image(util.pic2b64(img))}{MessageSegment.image(util.pic2b64(img2))}\n成功开始了砍伐{dat.get_item_from_col('id', args[0])[1]}和{dat.get_item_from_col('id', args[1])[1]}的行动\n当你想要取消的时候输入?结算行动")
+        return
 
 
 @reg_cmd(['烧制物品', '炼制', '锻造', '熔炼'])
@@ -500,7 +594,14 @@ async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('锻造'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+            if not isinstance(a[1], tuple):
+                await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
+                return
+            name = []
+            for each in a:
+                name.append(dat.get_item_from_col('id', each)[1])
+            msg = '和'.join(name)
+            await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
         else:
             fr = json.loads(recipes[2])
@@ -591,6 +692,10 @@ async def cmd_complete(bot: HoshinoBot, ev: CQEvent, args):
         if action['action'][0] == '加工':
             msg = cal_runecrafting(action, uid)
             await bot.send(ev, msg)
+            return
+        if action['action'][0] == '砍伐':
+            msg = cal_woodcutting(action, uid)
+            await bot.send(ev, str(msg))
             return
     else:
         await bot.send(ev, '你并没有在任何行动中')

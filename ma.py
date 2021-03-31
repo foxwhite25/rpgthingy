@@ -1,4 +1,5 @@
 import base64
+import copy
 import textwrap
 from io import BytesIO
 from collections import Counter
@@ -325,6 +326,13 @@ def get_item_image(iid):
     return im
 
 
+def get_tree_image(iid):
+    img_path = os.path.join(__BASE[0], f'icons/wood/t{iid}.png')
+    im = Image.open(img_path)
+    im.thumbnail((128, 128), Image.ANTIALIAS)
+    return im
+
+
 def list2foward(li, uid):
     l2 = []
     for msg in li:
@@ -436,6 +444,75 @@ def runecrafting_milestone(uid):
     return a
 
 
+def cal_woodcutting(action, uid):
+    sk = json.loads(db.get_player_skill(uid)[1])
+    mastery_pool = sk['woodcutting'][0]  # Get Mastery pool and skill level
+    axes = dat.get_shop()['axe']
+    axe = db.get_upgrade(uid)['axe']
+    axe = axes[axe]  # Get player axe stat
+    time_reduction = 1 - axe[3]
+    bird_chance = 0.005
+    equipment = json.loads(db.get_player_inv(uid)[2])
+    if equipment['cape'] == "460" or equipment['cape'] == "810" or equipment['cape'] == "903":
+        time_reduction += 0.15
+    mastery = db.get_mastery(uid, 'woodcutting')[0]  # Get item mastery
+    mastery = json.loads(mastery)
+    start_time = action['start_time']
+    now = datetime.datetime.timestamp(datetime.datetime.now())
+    seconds = math.floor(now - start_time)
+    if seconds >= 43200:
+        seconds = 43200
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    time_str = ("%d小时%02d分%02d秒" % (h, m, s))
+    wood_ids = action['action'][1]
+    if isinstance(wood_ids, int):
+        wood_ids = (wood_ids,)
+    woods = []
+    for each in wood:
+        if int(each['id']) in wood_ids:
+            temp = 0
+            bonus = 0
+            if mastery_pool >= 1125000:
+                bonus += 0.05
+            if get_skill_level(mastery[each['id']]) == 99:
+                temp = 0.2
+            each2 = copy.deepcopy(each)
+            each2['bonus'] = 1 + math.floor(get_skill_level(mastery[each['id']]) / 10) * 0.05 + bonus
+            each2['time_temp'] = int(each['time']) * time_reduction - temp
+            woods.append(each2)
+    inv = Counter(json.loads(db.get_player_inv(uid)[1]))
+    to = {}
+    iteration_list = []
+    mxp_list = []
+    xp = 0
+    for each in woods:
+        iteration = math.floor(seconds / int(each['time_temp']))
+        if '119' not in to:
+            to['119'] = math.floor(iteration * bird_chance)
+        else:
+            to['119'] += math.floor(iteration * bird_chance)
+        to[each['id']] = math.floor(iteration * each['bonus'])
+        mxp = mxpd(uid, 'woodcutting', each['id'], each['time_temp'], iteration)
+        db.add_master_xp(uid, 'woodcutting', each['id'], mxp)
+        mxp_list.append(f'{mxp}点{dat.get_name_from_id(each["id"])[0]}熟练度')
+        iteration_list.append(f'{iteration}次{dat.get_name_from_id(each["id"])[0]}')
+        xp += int(each['exp']) * iteration
+        db.add_mastery_pool(uid, 'mining', int(mxp * 0.25))
+    if to['119'] == 0:
+        to.pop('119')
+    db.add_skill_xp(uid, 'woodcutting', xp)
+    ln = '\n'
+    inv = Counter(to) + inv
+    inv = json.dumps(dict(inv))
+    db.update_player_inv(uid, inv)
+    msg = f'经过了{time_str}，你砍伐了{"和".join(iteration_list)}，你获得了:\n{xp}点经验值\n{ln.join(mxp_list)}\n'
+    if axe[0] != 0:
+        msg = f'经过了{time_str}，你使用{axe[1]}砍伐了{"和".join(iteration_list)}，你获得了:\n{xp}点经验值\n{ln.join(mxp_list)}\n'
+    msg += str(inventory(0, user_loot=True, loot=to))
+    return msg
+
+
 def cal_mining(action, uid):
     sk = json.loads(db.get_player_skill(uid)[1])
     picks = dat.get_shop()['pickaxe']
@@ -500,9 +577,9 @@ def cal_mining(action, uid):
     mxp = mxpd(uid, 'mining', o['id'], time, iteration)
     if mastery_pool >= 550000:
         mxp = int(mxp * 1.05)
-    msg = f'经过了{time_str}，进行了{iteration}次挖掘，你获得了{o["exp"] * iteration}点经验值和{mxp}点{dat.get_name_from_id(o["id"])[0]}熟练度以及:\n'
+    msg = f'经过了{time_str}，进行了{iteration}次挖掘，你获得了:\n{o["exp"] * iteration}点经验值\n{mxp}点{dat.get_name_from_id(o["id"])[0]}熟练度\n'
     if pick[0] != 0:
-        msg = f'经过了{time_str}，进行了{iteration}次使用{pick[1]}的挖掘，你获得了{o["exp"] * iteration}点经验值和{mxp}点{dat.get_name_from_id(o["id"])[0]}熟练度以及:\n'
+        msg = f'经过了{time_str}，进行了{iteration}次使用{pick[1]}的挖掘，你获得了:\n{o["exp"] * iteration}点经验值\n{mxp}点{dat.get_name_from_id(o["id"])[0]}熟练度\n'
     db.add_skill_xp(uid, 'mining', o['exp'] * iteration)
     db.add_master_xp(uid, 'mining', o['id'], mxp)
     db.add_mastery_pool(uid, 'mining', int(mxp * 0.25))
@@ -513,6 +590,7 @@ def cal_mining(action, uid):
 def cal_smithing(action, uid):
     sk = json.loads(db.get_player_skill(uid)[1])
     time = 2
+    inv = json.loads(db.get_player_inv(uid)[1])
     start_time = action['start_time']
     equipment = json.loads(db.get_player_inv(uid)[2])
     item = action['action'][1]
@@ -535,7 +613,6 @@ def cal_smithing(action, uid):
         preserve += 0.05
     if mastery_pool >= 54625000:
         sec_chance += 0.1
-    inv = json.loads(db.get_player_inv(uid)[1])
     recipes = dat.get_recipes(item)
     fr = Counter(json.loads(recipes[2]))
     to = Counter(json.loads(recipes[1]))
@@ -858,9 +935,9 @@ def woodcutting(uid):
     n = 1
     for item, skil in sorted(mastery.items()):
         item = str(item)
-        im = get_item_image(item)
+        im = get_tree_image(item)
         im = im.resize((100, 100), Image.ANTIALIAS)
-        img.paste(im, (0, 400 + n * 120), im)
+        img.paste(im, (0, 400 + n * 120))
         level = get_skill_level(skil)
         d.text((110, 400 + n * 120), f"{dat.get_name_from_id(item)[0]}的熟练度:{level}/99", font=fnt, fill=(0, 0, 0))
         if level >= 99:
@@ -870,7 +947,9 @@ def woodcutting(uid):
         pbar = progressBar((45, 53, 66), color, 0, 0, 700, 10, level / 99)
         img.paste(pbar, (110, 440 + n * 120), pbar)
         o = get_tree_from_id(item)
-        d.text((110, 470 + n * 120), f"所需等级:{o['level']} 每一次获得经验:{o['exp']} 采集须时:{o['time']}s ID:{o['id']}", font=fnt, fill=(0, 0, 0))
+        print(o)
+        d.text((110, 470 + n * 120), f"所需等级:{o['level']} 每一次获得经验:{o['exp']} 采集须时:{o['time']}s ID:{o['id']}", font=fnt,
+               fill=(0, 0, 0))
         n += 1
     im = Image.new('RGB', (1000, 1680), (0, 0, 0, 0))
     im2 = Image.new('RGB', (950, 1680 - 50), (255, 255, 255))
@@ -1149,11 +1228,15 @@ def shop(uid):
                                                                                                       Image.ANTIALIAS)
         c.append((pickaxe_level, pick_image))
     axe_level = upgrade['axe'] + 1
+    if 'double_wood' not in upgrade:
+        tree_image = Image.open(os.path.join(__BASE[0], f'icons/wood/multi.png')).resize((100, 100), Image.ANTIALIAS)
+        c.append(([1, '双倍斧头', 1, 1, 1000000], tree_image))
     if axe_level != 8:
         for a in store['axe']:
             if a[0] == axe_level:
                 axe_level = a
-        axe_image = Image.open(os.path.join(__BASE[0], f'icons/placeholder.png')).resize((100, 100), Image.ANTIALIAS)
+        axe_image = Image.open(os.path.join(__BASE[0], f'icons/wood/{axe_level[0]}.png')).resize((100, 100),
+                                                                                                 Image.ANTIALIAS)
         c.append((axe_level, axe_image))
     fishing_level = upgrade['fishing_rod'] + 1
     if fishing_level != 8:
@@ -1208,11 +1291,10 @@ def shop(uid):
         d.text((110, 420 + a * 120), msg, font=fnt, fill=(0, 0, 0))
         a += 1
     for sk, image in c:
-        print(image)
+        print(sk)
         im = image
         img.paste(im, (0, 380 + a * 120), im)
         d.text((110, 380 + a * 120), f"{sk[1]} ID:{sk[0]}", font=fnt, fill=(0, 0, 0))
-        print(sk)
         if sk[4] < 1:
             co = sk[5]
         else:
