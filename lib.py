@@ -268,28 +268,19 @@ class RecordDAO:
                          "cape": None, "quiver": None,
                          "ring": None, "amulet": None, "shield": None, "weapon": None}
             action = {"action": None, "start_time": None}
-            woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = {
-                                                                                                                                              '0': 0,
-                                                                                                                                              '1': 0,
-                                                                                                                                              '2': 0,
-                                                                                                                                              '3': 0,
-                                                                                                                                              '4': 0,
-                                                                                                                                              '5': 0,
-                                                                                                                                              '6': 0,
-                                                                                                                                              '7': 0,
-                                                                                                                                              '8': 0}, {}, {}, {}, {
-                                                                                                                                              45: 0,
-                                                                                                                                              46: 0,
-                                                                                                                                              47: 0,
-                                                                                                                                              48: 0,
-                                                                                                                                              49: 0,
-                                                                                                                                              50: 0,
-                                                                                                                                              51: 0,
-                                                                                                                                              52: 0,
-                                                                                                                                              53: 0,
-                                                                                                                                              54: 0,
-                                                                                                                                              388: 0}, get_skill_mastery(
-                '锻造'), {}, {}, {}, get_skill_mastery('合成'), get_skill_mastery('符文铭刻'), {}
+            woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = \
+                {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0}, \
+                {}, \
+                {}, \
+                {}, \
+                {45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0, 388: 0},\
+                get_skill_mastery('锻造'),\
+                {},\
+                {},\
+                {},\
+                get_skill_mastery('合成'),\
+                get_skill_mastery('符文铭刻'),\
+                {}
             upgrade = {"pickaxe": 0, "axe": 0, "fishing_rod": 0, "cooking_fire": 0}
             charge = {"335": "None", "336": "None", "337": "None", "338": "None", "339": "None"}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = json.dumps(

@@ -375,7 +375,7 @@ async def cmd_crafting(bot: HoshinoBot, ev: CQEvent, args):
                 return
             name = []
             for each in a:
-                name.append(dat.get_item_from_col('id', each)[1])
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -431,7 +431,7 @@ async def cmd_mine(bot: HoshinoBot, ev: CQEvent, args):
                 return
             name = []
             for each in a:
-                name.append(dat.get_item_from_col('id', each)[1])
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -476,7 +476,7 @@ async def cmd_runecrafting(bot: HoshinoBot, ev: CQEvent, args):
                 return
             name = []
             for each in a:
-                name.append(dat.get_item_from_col('id', each)[1])
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -542,7 +542,7 @@ async def cmd_woodcutting(bot: HoshinoBot, ev: CQEvent, args):
             return
         name = []
         for each in a:
-            name.append(dat.get_item_from_col('id', each)[1])
+            name.append(dat.get_item_from_col('id', str(each))[1])
         msg = '和'.join(name)
         await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
         return
@@ -599,7 +599,7 @@ async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
                 return
             name = []
             for each in a:
-                name.append(dat.get_item_from_col('id', each)[1])
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
