@@ -1,0 +1,322 @@
+/* # optional  monsterlist bone update*/
+update monsterlist
+set name='骨头' where bone='Bones';
+update monsterlist
+set name='大骨头' where bone='Big Bones';
+update monsterlist
+set name='圣尘' where bone='Holy Dust';
+update monsterlist
+set name='魔术骨' where bone='Magic Bones';
+update monsterlist
+set name='龙骨' where bone='Dragon Bones';
+update monsterlist
+set name='土豆' where bone='Potatoes';
+update monsterlist
+set name='风魔晶' where bone='Air Shard';
+update monsterlist
+set name='水魔晶' where bone='Water Shard';
+update monsterlist
+set name='土魔晶' where bone='Earth Shard';
+update monserlist
+set name='火魔晶' where bone='Fire Shard';
+/*monsterlist name update*/
+update monsterlist
+set name='黑骑士' where ID=0;
+update monsterlist
+set name='山岭巨人' where ID=1;
+update monsterlist
+set name='苔藓巨人' where ID=2;
+update monsterlist
+set name='大螃蟹' where ID=3;
+update monsterlist
+set name='触手怪' where ID=4;
+update monsterlist
+set name='海鸥' where ID=5;
+update monsterlist
+set name='神志不清的海盗' where ID=6;
+update monsterlis
+set name='冰霜猛犸' where ID=7;
+update monsterlist
+set name='冰霜射手' where ID=8;
+update monsterlist
+set name='木乃伊' where ID=9;
+update monsterlist
+set name='雕像' where ID=10;
+update monsterlist
+set name='美杜莎' where ID=11;
+update monsterlist
+set name='湿透的怪物' where ID=12;
+update monsterlist
+set name='潮湿的怪物' where ID=13;
+update monsterlist
+set name='出汗的怪物' where ID=14;
+update monsterlist
+set name='不死狼人' where ID=15;
+update monsterlist
+set name='吸血鬼' where ID=16;
+update monsterlist
+set name='魔鬼' where ID=17;
+update monsterlist
+set name='多眼怪' where ID=18;
+update monsterlist
+set name='变异多眼怪' where ID=19;
+update monsterlist
+set name='一团眼睛' where ID=20;
+update monsterlist
+set name='邪眼' where ID=21;
+update monsterlist
+set name='格里芬' where ID=22;
+update monsterlist
+set name='飞马' where ID=23;
+update monsterlist
+set name='仙女' where ID=24;
+update monsterlist
+set name='女武神' where ID=25;
+update monsterlist
+set name='天使' where ID=26;
+update monsterlist
+set name='天使弓箭手' where ID=27;
+update monsterlist
+set name='粘液怪' where ID=28;
+update monsterlist
+set name='绿色粘液怪' where ID=29;
+update monsterlist
+set name='紫色粘液怪' where ID=30;
+update monsterlist
+set name='重组粘液怪' where ID=31;
+update monsterlist
+set name='愤怒战牛' where ID=32;
+update monsterlist
+set name='沸血战牛' where ID=33;
+update monsterlist
+set name='黑角战牛' where ID=34;
+update monsterlist
+set name='哥布林' where ID=35;
+update monsterlist
+set name='哥布林弓手' where ID=36;
+update monsterlist
+set name='鸡' where ID=37;
+update monsterlist
+set name='牛' where ID=38;
+update monsterlist
+set name='小鸡' where ID=39;
+update monsterlist
+set name='公鸡' where ID=40;
+update monsterlist
+set name='海盗' where ID=41;
+update monsterlist
+set name='海盗船长' where ID=42;
+update monsterlist
+set name='海妖' where ID=43;
+update monsterlist
+set name='蝙蝠' where ID=44;
+update monsterlist
+set name='大蝙蝠' where ID=45;
+update monsterlist
+set name='眼球' where ID=46;
+update monsterlist
+set name='变异眼球' where ID=47;
+update monsterlist
+set name='Prat,秘藏保存者' where ID=48;
+update monsterlist
+set name='Malcs,秘藏守卫' where ID=49;
+update monsterlist
+set name='小蜘蛛' where ID=50;
+update monsterlist
+set name='蜘蛛' where ID=51;
+update monsterlist
+set name='邪恶蜘蛛' where ID=52;
+update monsterlist
+set name='蜘蛛王' where ID=53;
+update monsterlist
+set name='冰兵' where ID=54;
+update monsterlist
+set name='冰巨魔' where ID=55;
+update monsterlist
+set name='冰块' where ID=56;
+update monsterlist
+set name='冰守护者' where ID=57;
+update monsterlist
+set name='海盗团首领' where ID=58;
+update monsterlist
+set name='僵尸手' where ID=59;
+update monsterlist
+set name='僵尸' where ID=60;
+update monsterlist
+set name='僵尸头领' where ID=61;
+update monsterlist
+set name='幽魂' where ID=62;
+update monsterlist
+set name='绿龙' where ID=63;
+update monsterlist
+set name='蓝龙' where ID=64;
+update monsterlist
+set name='红龙' where ID=65;
+update monsterlist
+set name='黑龙' where ID=66;
+update monsterlist
+set name='农民学徒' where ID=67;
+update monsterlist
+set name='正式农民' where ID=68;
+update monsterlist
+set name='农民大师' where ID=69;
+update monsterlist
+set name='巫师' where ID=70;
+update monsterlist
+set name='钢甲骑士' where ID=71;
+update monsterlist
+set name='秘银骑士' where ID=72;
+update monsterlist
+set name='精金骑士' where ID=73;
+update monsterlist
+set name='符文骑士' where ID=74;
+update monsterlist
+set name='强盗学徒' where ID=75;
+update monsterlist
+set name='强盗' where ID=76;
+update monsterlist
+set name='强盗头领' where ID=77;
+update monsterlist
+set name='黑巫师' where ID=78;
+update monsterlist
+set name='专家级巫师' where ID=79;
+update monsterlist
+set name='大师级巫师' where ID=80;
+update monsterlist
+set name='骷髅' where ID=81;
+update monsterlist
+set name='水蛭' where ID=82;
+update monsterlist
+set name='毒蛇' where ID=83;
+update monsterlist
+set name='灰烬之灵' where ID=84;
+update monsterlist
+set name='风斥候' where ID=85;
+update monsterlist
+set name='风妖' where ID=86;
+update monsterlist
+set name='风魔像' where ID=87;
+update monsterlist
+set name='三头犬' where ID=88;
+update monsterlist
+set name='风守卫' where ID=89;
+update monsterlist
+set name='阿瑞斯' where ID=90;
+update monsterlist
+set name='水斥候' where ID=91;
+update monsterlist
+set name='水妖' where ID=92;
+update monsterlist
+set name='水魔像' where ID=93;
+update monsterlist
+set name='娜迦' where ID=94;
+update monsterlist
+set name='水守卫' where ID=95;
+update monsterlist
+set name='格拉希亚' where ID=96;
+update monsterlist
+set name='土斥候' where ID=97;
+update monsterlist
+set name='土妖' where ID=98;
+update monsterlist
+set name='土魔像' where ID=99;
+update monsterlist
+set name='战争古树' where ID=100;
+update monsterlist
+set name='土守卫' where ID=101;
+update monsterlist
+set name='泰伦' where ID=102;
+update monsterlist
+set name='火斥候' where ID=103;
+update monsterlist
+set name='火妖' where ID=104;
+update monsterlist
+set name='火魔像' where ID=105;
+update monsterlist
+set name='火烈鸟' where ID=106;
+update monsterlist
+set name='火守卫' where ID=107;
+update monsterlist
+set name='瑞格纳' where ID=108;
+update monsterlist
+set name='远古巨龙' where ID=109;
+update monsterlist
+set name='狂暴战牛' where ID=110;
+update monsterlist
+set name='植物' where ID=111;
+update monsterlist
+set name='真菌个体' where ID=112;
+update monsterlist
+set name='真菌Trine' where ID=113;
+update monsterlist
+set name='真菌守望者' where ID=114;
+update monsterlist
+set name='真菌君主' where ID=115;
+update monsterlist
+set name='德鲁伊' where ID=116;
+update monsterlist
+set name='窃贼' where ID=117;
+update monsterlist
+set name='萨满' where ID=118;
+update monsterlist
+set name='死灵法师' where ID=119;
+update monsterlist
+set name='元素使' where ID=120;
+update monsterlist
+set name='哥萨克骑士' where ID=121;
+update monsterlist
+set name='哥萨克弓手' where ID=122;
+update monsterlist
+set name='哥萨克投矛手' where ID=123;
+update monsterlist
+set name='哥萨克巨人' where ID=124;
+update monsterlist
+set name='哥萨克将军' where ID=125;
+update monsterlist
+set name='沙鲨' where ID=126;
+update monsterlist
+set name='怨恨蜘蛛' where ID=127;
+update monsterlist
+set name='吸血鬼长老' where ID=128;
+update monsterlist
+set name='怨灵' where ID=129;
+update monsterlist
+set name='赏金猎人' where ID=130;
+update monsterlist
+set name='混乱巨龙' where ID=131;
+update monsterlist
+set name='猎杀巨龙' where ID=132;
+update monsterlist
+set name='邪恶巨龙' where ID=133;
+update monsterlist
+set name='三叶虫' where ID=134;
+update monsterlist
+set name='灯笼鱼' where ID=135;
+update monsterlist
+set name='乌贼' where ID=136;
+update monsterlist
+set name='圣骑士' where ID=137;
+update monsterlist
+set name='牧师' where ID=138;
+update monsterlist
+set name='流浪乐队' where ID=139;
+update monsterlist
+set name='冥犬' where ID=140;
+update monsterlist
+set name='恐惧之眼' where ID=141;
+update monsterlist
+set name='红魔鬼' where ID=142;
+update monsterlist
+set name='凤凰' where ID=143;
+update monsterlist
+set name='火焰战马' where ID=144;
+update monsterlist
+set name='Prat,奥秘守护者' where ID=145;
+update monsterlist
+set name='Malcs,巨龙首领' where ID=146;
+update monsterlist
+set name='神秘人(阶段1)' where ID=147;
+update monsterlist
+set name='神秘人(阶段2)' where ID=148;
+update monsterlist
+set name='Ahrenia' where ID=149;
