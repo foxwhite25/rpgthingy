@@ -370,12 +370,12 @@ async def cmd_crafting(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('合成'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            if not isinstance(a[1], tuple):
+            if not isinstance(a[1], list):
                 await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
                 return
             name = []
-            for each in a:
-                name.append(dat.get_item_from_col('id', str(each[1])))
+            for each in a[1]:
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -426,12 +426,12 @@ async def cmd_mine(bot: HoshinoBot, ev: CQEvent, args):
     if 45 <= args[0] <= 54 or args[0] == 388:
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            if not isinstance(a[1], tuple):
+            if not isinstance(a[1], list):
                 await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
                 return
             name = []
-            for each in a:
-                name.append(dat.get_item_from_col('id', str(each[1])))
+            for each in a[1]:
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -471,12 +471,12 @@ async def cmd_runecrafting(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('符文铭刻'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            if not isinstance(a[1], tuple):
+            if not isinstance(a[1], list):
                 await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
                 return
             name = []
-            for each in a:
-                name.append(dat.get_item_from_col('id', str(each[1])))
+            for each in a[1]:
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
@@ -537,12 +537,12 @@ async def cmd_woodcutting(bot: HoshinoBot, ev: CQEvent, args):
         return
     if is_player_in_action(uid):
         a = is_player_in_action(uid)
-        if isinstance(a[1], int):
+        if not isinstance(a[1], list):
             await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
             return
         name = []
-        for each in a:
-            name.append(dat.get_item_from_col('id', str(each[1])))
+        for each in a[1]:
+            name.append(dat.get_item_from_col('id', str(each))[1])
         msg = '和'.join(name)
         await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
         return
@@ -594,12 +594,12 @@ async def cmd_smithing(bot: HoshinoBot, ev: CQEvent, args):
     if str(args[0]) in dat.get_all_recipes('锻造'):
         if is_player_in_action(uid):
             a = is_player_in_action(uid)
-            if not isinstance(a[1], tuple):
+            if not isinstance(a[1], list):
                 await bot.send(ev, f"当前已经在进行{a[0]}{dat.get_item_from_col('id', a[1])[1]}了")
                 return
             name = []
-            for each in a:
-                name.append(dat.get_item_from_col('id', str(each[1])))
+            for each in a[1]:
+                name.append(dat.get_item_from_col('id', str(each))[1])
             msg = '和'.join(name)
             await bot.send(ev, f"当前已经在进行{a[0]}{msg}了")
             return
