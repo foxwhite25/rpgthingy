@@ -1209,6 +1209,7 @@ def shop(uid):
     shop_list = store["shop"]
     skill = db.get_all_skill_level(uid)
     upgrade = db.get_upgrade(uid)
+    COIN = db.get_player_stat(uid)[2]
     a = {}
     c = []
     for sk, value in skill.items():
@@ -1263,12 +1264,14 @@ def shop(uid):
     fnt = ImageFont.truetype(font_path, 30)
     d = ImageDraw.Draw(img)
     d.text((340, 0), f"商店系统:", font=header_fnt, fill=(0, 0, 0))
-    d.text((280, 70), '''
+    d.text((280, 70), f'''
     该商店提供了许多用于使用GP或
     Slayer Coins购买的物品。 例如，
     玩家可以升级他们的镐，斧，钓鱼竿，
     购买一些基本材料，购买新的斩杀者装备
-    以及其他一些东西。''', font=fnt, fill=(0, 0, 0))
+    以及其他一些东西。
+    
+    你的GP:{COIN}''', font=fnt, fill=(0, 0, 0))
     a = 0
     for item, cost in shop_list:
         im = get_item_image(item).resize((100, 100), Image.ANTIALIAS)

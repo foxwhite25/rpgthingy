@@ -273,13 +273,13 @@ class RecordDAO:
                 {}, \
                 {}, \
                 {}, \
-                {45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0, 388: 0},\
-                get_skill_mastery('锻造'),\
-                {},\
-                {},\
-                {},\
-                get_skill_mastery('合成'),\
-                get_skill_mastery('符文铭刻'),\
+                {45: 0, 46: 0, 47: 0, 48: 0, 49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0, 388: 0}, \
+                get_skill_mastery('锻造'), \
+                {}, \
+                {}, \
+                {}, \
+                get_skill_mastery('合成'), \
+                get_skill_mastery('符文铭刻'), \
                 {}
             upgrade = {"pickaxe": 0, "axe": 0, "fishing_rod": 0, "cooking_fire": 0}
             charge = {"335": "None", "336": "None", "337": "None", "338": "None", "339": "None"}
@@ -369,6 +369,27 @@ class dat:
         for each in r:
             a.append(each[0])
         return a
+
+    def get_equipment_stat(self, equipment):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT stat FROM equipment WHERE ID=? ", (equipment,)
+            ).fetchall()[0][0]
+        return json.loads(r)
+
+    def get_monster_stat(self, mob):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT stat FROM monsterlist WHERE ID=? ", (mob,)
+            ).fetchall()[0]
+        return r
+
+    def get_monster_name(self, mob):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT name FROM monsterlist WHERE ID=? ", (mob,)
+            ).fetchall()[0]
+        return json.loads(r)
 
     def get_skill_mastery(self, skill):
         with self.connect() as conn:
