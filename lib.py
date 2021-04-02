@@ -182,6 +182,32 @@ class RecordDAO:
                 "UPDATE skill SET skill=? WHERE uid = ?", (r, uid,)
             )
 
+    def add_combat_xp(self, uid, skill, amount):
+        with self.connect() as conn:
+            r = conn.execute(
+                "select skill from skill WHERE uid = ?", (uid,)
+            ).fetchall()[0][0]
+        r = json.loads(r)
+        r[skill] += amount
+        r = json.dumps(r, indent=4)
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE skill SET skill=? WHERE uid = ?", (r, uid,)
+            )
+
+    def set_combat_xp(self, uid, skill, amount):
+        with self.connect() as conn:
+            r = conn.execute(
+                "select skill from skill WHERE uid = ?", (uid,)
+            ).fetchall()[0][0]
+        r = json.loads(r)
+        r[skill] = amount
+        r = json.dumps(r, indent=4)
+        with self.connect() as conn:
+            r = conn.execute(
+                "UPDATE skill SET skill=? WHERE uid = ?", (r, uid,)
+            )
+
     def add_mastery_pool(self, uid, skill, amount):
         with self.connect() as conn:
             r = conn.execute(
@@ -258,7 +284,7 @@ class RecordDAO:
 
     def ini_player(self, uid, name):
         if not self.is_player_exist(uid):
-            skill = {"attack": 0, "strength": 0, "defence": 0, "hitpoints": 0, "ranged": 0, "magic": 0, "prayer": 0,
+            skill = {"attack": 0, "strength": 0, "defence": 0, "hitpoints": 1155, "ranged": 0, "magic": 0, "prayer": 0,
                      "slayer": 0,
                      "woodcutting": [0, 0], "fishing": [0, 0], "firemaking": [0, 0], "cooking": [0, 0],
                      "mining": [0, 0], "smithing": [0, 0], "thieving": [0, 0], "farming": [0, 0], "fletching": [0, 0],
@@ -371,6 +397,12 @@ class dat:
         return a
 
     def get_equipment_stat(self, equipment):
+        a = {"str_bonus": {"melee": 0, "ranged": 0},
+             "atk_bonus": {"melee": {"stab": 0, "slash": 0, "block": 0}, "ranged": 0, "magic": 0}, "magic_bonus": 0.0,
+             "def_bonus": {"melee": 0, "ranged": 0, "magic": 0}, "damage_reduction": 0.0, "slayer_xp": 0,
+             "level": {"def": 0, "rag": 0, "mag": 0}, "slot": "Helmet"}
+        if not equipment:
+            return a
         with self.connect() as conn:
             r = conn.execute(
                 "SELECT stat FROM equipment WHERE ID=? ", (equipment,)
@@ -381,15 +413,30 @@ class dat:
         with self.connect() as conn:
             r = conn.execute(
                 "SELECT stat FROM monsterlist WHERE ID=? ", (mob,)
-            ).fetchall()[0]
-        return r
+            ).fetchall()[0][0]
+        return json.loads(r)
 
     def get_monster_name(self, mob):
         with self.connect() as conn:
             r = conn.execute(
                 "SELECT name FROM monsterlist WHERE ID=? ", (mob,)
-            ).fetchall()[0]
-        return json.loads(r)
+            ).fetchall()[0][0]
+        return r
+
+    def get_monster_dict(self):
+        di = {}
+        with self.connect() as conn:
+            a = conn.execute("SELECT name,monster FROM dungeon").fetchall()
+            b = conn.execute("SELECT name,monster FROM combat").fetchall()
+        for name , dic in a:
+            dic = json.loads(dic)
+            for mob,num in dic.items():
+                di[mob] = name
+        for name, li in b:
+            li = json.loads(li)
+            for mob in li:
+                di[mob] = name
+        return di
 
     def get_skill_mastery(self, skill):
         with self.connect() as conn:

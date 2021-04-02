@@ -90,6 +90,14 @@ def get_pic(qq):
     return Image.open(requests.get(apiPath, stream=True).raw)
 
 
+def cal_average(di):
+    sum_num = 0
+    for name,t in di.items():
+        sum_num = sum_num + t
+    avg = sum_num / len(di)
+    return avg
+
+
 def add(dict1, dict2):
     for key in dict2:
         if key in dict1:
@@ -1337,87 +1345,74 @@ def add_two_inv(inv1, inv2):
     return dict(Counter(inv1) + Counter(inv2))
 
 
-def armour(uid):
+def armour(uid,frame=True):
     img = Image.new('RGBA', (900, 1800), (255, 0, 0, 0))
     equipment = json.loads(db.get_player_inv(uid)[2])
     if not equipment['helmet']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_helmet.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_helmet.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["helmet"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["helmet"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (300, 0), im)
     if not equipment['amulet']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/misc_amulet.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/misc_amulet.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["amulet"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["amulet"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (300, 300), im)
     if not equipment['platebody']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_platebody.png')).resize((300, 300),
-                                                                                             Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_platebody.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["platebody"]}.png')).resize((300, 300),
-                                                                                                    Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["platebody"]}.png')
     im = im.convert('RGBA')
 
     img.paste(im, (300, 600), im)
     if not equipment['platelegs']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_platelegs.png')).resize((300, 300),
-                                                                                             Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_platelegs.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["platelegs"]}.png')).resize((300, 300),
-                                                                                                    Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["platelegs"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (300, 900), im)
     if not equipment['boots']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_boots.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_boots.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["boots"]}.png')).resize((300, 300),
-                                                                                                Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["boots"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (300, 1200), im)
     if not equipment['cape']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_cape.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_cape.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["cape"]}.png')).resize((300, 300),
-                                                                                               Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["cape"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (0, 300), im)
     if not equipment['quiver']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/weapon_quiver.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/weapon_quiver.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["quiver"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["quiver"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (600, 300), im)
     if not equipment['weapon']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/weapon_sword.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/weapon_sword.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["weapon"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["weapon"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (0, 600), im)
     if not equipment['shield']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_shield.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_shield.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["shield"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["shield"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (600, 600), im)
     if not equipment['gloves']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/armour_gloves.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/armour_gloves.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["gloves"]}.png')).resize((300, 300),
-                                                                                                 Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["gloves"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (0, 1200), im)
     if not equipment['ring']:
-        im = Image.open(os.path.join(__BASE[0], 'icons/armour/misc_ring.png')).resize((300, 300), Image.ANTIALIAS)
+        im = get_armor_icon('icons/armour/misc_ring.png')
     else:
-        im = Image.open(os.path.join(__BASE[0], f'icons/item/{equipment["ring"]}.png')).resize((300, 300),
-                                                                                               Image.ANTIALIAS)
+        im = get_armor_icon(f'icons/item/{equipment["ring"]}.png')
     im = im.convert('RGBA')
     img.paste(im, (600, 1200), im)
     im = Image.new('RGB', (1000, 1700), (0, 0, 0, 0))
@@ -1425,4 +1420,30 @@ def armour(uid):
     im.convert("RGBA")
     im.paste(im2, (25, 25))
     im.paste(img, (50, 50), img)
-    return MessageSegment.image(util.pic2b64(im))
+    if frame:
+        return MessageSegment.image(util.pic2b64(im))
+    else:
+        return img
+
+
+def get_armor_icon(url):
+    img = Image.open(os.path.join(__BASE[0], url)).resize((240, 240),Image.ANTIALIAS)
+    im_back = round_rectangle((280, 280,), 30, 'black', '')
+    im_front = round_rectangle((260, 260,), 30, (249,249,250), '')
+    im_back.paste(im_front, (10,10), im_front)
+    try:
+        im_back.paste(img, (20,20), img)
+    except ValueError:
+        img = img.convert("RGBA")
+        data = img.getdata()
+        newData = []
+        for item in data:
+            if item[0] == 255 and item[1] == 255 and item[2] == 255:
+                newData.append((255, 255, 255, 0))
+            else:
+                newData.append(item)
+        img.putdata(newData)
+        im_back.paste(img, (20, 20), img)
+    return im_back
+
+
