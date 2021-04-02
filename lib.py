@@ -426,16 +426,16 @@ class dat:
     def get_monster_dict(self):
         di = {}
         with self.connect() as conn:
-            a = conn.execute("SELECT name,monster FROM dungeon").fetchall()
-            b = conn.execute("SELECT name,monster FROM combat").fetchall()
-        for name , dic in a:
+            a = conn.execute("SELECT ID,name,monster FROM dungeon").fetchall()
+            b = conn.execute("SELECT ID,name,monster FROM combat").fetchall()
+        for ID,name, dic in a:
             dic = json.loads(dic)
-            for mob,num in dic.items():
-                di[mob] = name
-        for name, li in b:
+            for mob, num in dic.items():
+                di[mob] = ('dungeon',ID,name)
+        for ID,name, li in b:
             li = json.loads(li)
             for mob in li:
-                di[mob] = name
+                di[mob] = ('combat',ID,name)
         return di
 
     def get_skill_mastery(self, skill):

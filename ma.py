@@ -209,25 +209,25 @@ def get_skill_level(x):
 def base_combat_level(uid):
     skill = db.get_player_skill(uid)[1]
     skill = json.loads(skill)
-    return (skill["defence"] + skill["hitpoints"] + skill["prayer"] / 2) * 0.25
+    return (get_skill_level(skill["defence"]) + get_skill_level(skill["hitpoints"]) + get_skill_level(skill["prayer"]) / 2) * 0.25
 
 
 def melee_combat_level(uid):
     skill = db.get_player_skill(uid)[1]
     skill = json.loads(skill)
-    return (skill["attack"] + skill["strength"]) * 0.325
+    return (get_skill_level(skill["attack"]) + get_skill_level(skill["strength"])) * 0.325
 
 
 def magic_combat_level(uid):
     skill = db.get_player_skill(uid)[1]
     skill = json.loads(skill)
-    return skill["magic"] * 0.4875
+    return get_skill_level(skill["magic"]) * 0.4875
 
 
 def ranged_combat_level(uid):
     skill = db.get_player_skill(uid)[1]
     skill = json.loads(skill)
-    return skill["ranged"] * 0.4875
+    return get_skill_level(skill["ranged"]) * 0.4875
 
 
 def change_item_num(uid, item, value):

@@ -7,7 +7,7 @@ import operator
 
 BASE = os.path.split(os.path.realpath(__file__))
 dat = dat(DATA_PATH)
-style_dict = {'stab': '穿刺', 'slash': '斩击', 'block': '格挡'}
+style_dict = {'stab': '穿刺', 'slash': '斩击', 'block': '格挡', 'accurate': '精准', 'rapid': '速射', 'longranged': '远距离射击'}
 attack_dict = {'melee': '近战', 'ranged': '远程', 'magic': '魔法'}
 a = {"str_bonus": {"melee": 3, "ranged": 0},
      "atk_bonus": {"melee": {"stab": 0, "slash": 0, "block": 0}, "ranged": -2, "magic": -6}, "magic_bonus": 0.0,
@@ -31,6 +31,11 @@ class Combat_Handler:
         mob_attack_stat = {'melee': self.mob_stat['skill']['atk'], 'ranged': self.mob_stat['skill']['rag'],
                            'magic': self.mob_stat['skill']['mag']}
         self.mob_attack_type = max(mob_attack_stat.items(), key=operator.itemgetter(1))[0]
+        if self.mob in monster_dict:
+            self.mob_location = monster_dict[self.mob]
+        else:
+            self.mob_location = ('combat', 'question', '')
+        self.mob_damage_reduction = 0
         # ================================================================= #
         self.equipment = json.loads(db.get_player_inv(uid)[2])
         self.skill_xp, self.skill = json.loads(db.get_player_skill(uid)[1]), {}
@@ -44,14 +49,15 @@ class Combat_Handler:
         self.effective_melee_attack, self.effective_ranged_attack, self.effective_magic_attack = 0, 0, 0
         self.melee_accuracy, self.ranged_accuracy, self.magic_accuracy = 0, 0, 0
         self.stab_bonus, self.slash_bonus, self.block_bonus, self.melee_style_bonus = 0, 0, 0, {}
-        self.melee_style = 'stab'
+        self.melee_style, self.ranged_style, self.spell = 'stab', 'accurate', 0
         self.ranged_bonus, self.magic_bonus = 0, 0
         # ================================================================= #
         self.melee_max_hit, self.ranged_max_hit, self.magic_max_hit = 0, 0, 0
         self.melee_strength_bonus, self.ranged_strength_bonus = 0, 0
+        self.effective_ranged_strength = 0
         # ================================================================= #
         self.get_equipment_total_stat()
-        if self.skill['hitpoints'] < 10:
+        if self.skill_xp['hitpoints'] < 1155:
             db.set_combat_xp(uid, 'hitpoints', 1155)
         # ================================================================= #
         self.mob_max_hp, self.max_hp = self.mob_stat['hp'], self.skill['hitpoints'] * 10
@@ -60,14 +66,25 @@ class Combat_Handler:
         self.mob_hp, self.hp = self.mob_max_hp, self.max_hp
         self.item_used, self.time_taken = {}, 0
         # ================================================================= #
-        weapon_stat = dat.get_equipment_stat(self.equipment['weapon'])
-        attack_stat = {'melee': cal_average(weapon_stat["atk_bonus"]["melee"]),
-                       'ranged': weapon_stat["atk_bonus"]['ranged'],
-                       'magic': weapon_stat["atk_bonus"]['magic']}
-        if attack_stat['melee'] == attack_stat['ranged'] == attack_stat['magic']:
+        try:
+            weapon_stat = dat.get_equipment_stat(self.equipment['weapon'])
+            self.attack_type = weapon_stat['type'].strip().lower()
+        except Exception:
             self.attack_type = 'melee'
-        else:
-            self.attack_type = max(attack_stat.items(), key=operator.itemgetter(1))[0]
+        # ================================================================ #
+        self.setup_melee()
+        self.setup_ranged()
+        self.setup_magic()
+        if self.attack_type == 'melee':
+            self.max_hit = self.melee_max_hit
+            self.accuracy_rating = self.melee_accuracy
+        if self.attack_type == 'magic':
+            self.max_hit = self.magic_max_hit
+            self.accuracy_rating = self.magic_accuracy
+        if self.attack_type == 'ranged':
+            self.max_hit = self.ranged_max_hit
+            self.accuracy_rating = self.ranged_accuracy
+        # ================================================================ #
 
     def get_equipment_total_stat(self):
         for slot, item in self.equipment.items():
@@ -80,38 +97,95 @@ class Combat_Handler:
             self.stab_bonus += stat['atk_bonus']['melee']['stab']
             self.slash_bonus += stat['atk_bonus']['melee']['slash']
             self.block_bonus += stat['atk_bonus']['melee']['block']
+            self.ranged_bonus += stat['atk_bonus']['ranged']
+            self.magic_bonus += stat['atk_bonus']['magic']
             self.melee_defence_bonus = stat['def_bonus']['melee']
+            self.ranged_defence_bonus = stat['def_bonus']['ranged']
+            self.magic_defence_bonus = stat['def_bonus']['magic']
             self.damage_reduction += stat['damage_reduction']
         self.melee_style_bonus = {'stab': self.stab_bonus, 'slash': self.slash_bonus, 'block': self.block_bonus}
         for skill, xp in self.skill_xp.items():
             if isinstance(xp, int):
                 self.skill[skill] = get_skill_level(xp)
 
-    def setup_melee(self, style):
+    def setup_melee(self):
         self.effective_melee_attack = self.skill["attack"] + 8  # + Attack style bonus (from agility apparently)
         self.effective_melee_defence = self.skill['defence'] + 8
-        self.melee_evasion = self.effective_melee_defence * (self.melee_style_bonus[style] + 64)  # * Potion and prayer
-        self.melee_accuracy = self.effective_melee_attack * (self.melee_style_bonus[style] + 64)  # * Potion and prayer
+        self.melee_evasion = self.effective_melee_defence * (self.melee_defence_bonus + 64)  # * Potion and prayer
+        self.melee_accuracy = self.effective_melee_attack * (
+                self.melee_style_bonus[self.melee_style] + 64)  # * Potion and prayer
         self.melee_max_hit = \
             (22 + self.skill["strength"] + ((17 + self.skill["strength"]) / 64)
              * self.melee_strength_bonus)  # * Potion and prayer
-        if self.melee_accuracy < self.mob_stat['evasion']['melee']:
-            self.hit_chance = 0.5 * self.melee_accuracy / self.mob_stat['evasion']['melee']
+        if self.attack_type == 'melee':
+            if self.melee_accuracy < self.mob_stat['evasion']['melee']:
+                self.hit_chance = 0.5 * self.melee_accuracy / self.mob_stat['evasion']['melee']
+            else:
+                self.hit_chance = 1 - 0.5 * self.mob_stat['evasion']['melee'] / self.melee_accuracy
+            if self.mob_stat['accuracy'] < self.melee_evasion:
+                self.mob_hit_chance = 0.5 * self.mob_stat['accuracy'] / self.melee_evasion
+            else:
+                self.mob_hit_chance = 1 - 0.5 * self.melee_evasion / self.mob_stat['accuracy']
+            if self.mob_attack_type == 'ranged':
+                self.effective_damage_reduction = self.damage_reduction * 1.25
+                self.melee_max_hit = self.melee_max_hit * 1.1
+            elif self.mob_attack_type == 'magic':
+                self.effective_damage_reduction = self.damage_reduction * 0.5
+                self.melee_max_hit = self.melee_max_hit * 0.9
+
+    def setup_ranged(self):
+        self.effective_ranged_attack = self.skill["ranged"] + 8  # + Attack style bonus (from agility apparently)
+        self.effective_ranged_defence = self.skill['defence'] + 9
+        if self.ranged_style == 'accurate':
+            bonus = 4
         else:
-            self.hit_chance = 1 - 0.5 * self.mob_stat['evasion']['melee'] / self.melee_accuracy
-        if self.mob_stat['accuracy'] < self.melee_evasion:
-            self.mob_hit_chance = 0.5 * self.mob_stat['accuracy'] / self.melee_evasion
-        else:
-            self.mob_hit_chance = 1 - 0.5 * self.melee_evasion / self.mob_stat['accuracy']
-        if self.mob_attack_type == 'ranged':
-            self.effective_damage_reduction = self.damage_reduction * 1.25
-            self.melee_max_hit = self.melee_max_hit * 1.1
-        elif self.mob_attack_type == 'magic':
-            self.effective_damage_reduction = self.damage_reduction * 0.5
-            self.melee_max_hit = self.melee_max_hit * 0.9
-        self.max_hit = self.melee_max_hit
-        self.accuracy_rating = self.melee_accuracy
-        self.melee_style = style
+            bonus = 1
+        self.effective_ranged_strength = self.skill["ranged"] + bonus
+        self.ranged_evasion = self.effective_ranged_defence * (self.ranged_defence_bonus + 64)  # * Potion and prayer
+        self.ranged_accuracy = self.effective_ranged_attack * (self.ranged_bonus + 64)  # * Potion and prayer
+        self.ranged_max_hit = \
+            10 * \
+            (1.3 + self.effective_ranged_strength / 10 + self.ranged_bonus / 80
+             + self.effective_ranged_strength * self.ranged_bonus / 640)  # * Potion and prayer
+        if self.attack_type == 'ranged':
+            if self.ranged_accuracy < self.mob_stat['evasion']['range']:
+                self.hit_chance = 0.5 * self.ranged_accuracy / self.mob_stat['evasion']['range']
+            else:
+                self.hit_chance = 1 - 0.5 * self.mob_stat['evasion']['range'] / self.ranged_accuracy
+            if self.mob_stat['accuracy'] < self.ranged_evasion:
+                self.mob_hit_chance = 0.5 * self.mob_stat['accuracy'] / self.ranged_evasion
+            else:
+                self.mob_hit_chance = 1 - 0.5 * self.ranged_evasion / self.mob_stat['accuracy']
+            if self.mob_attack_type == 'magic':
+                self.effective_damage_reduction = self.damage_reduction * 1.25
+                self.ranged_max_hit = self.ranged_max_hit * 1.1
+            elif self.mob_attack_type == 'melee':
+                self.effective_damage_reduction = self.damage_reduction * 0.5
+                self.ranged_max_hit = self.ranged_max_hit * 0.9
+
+    def setup_magic(self):
+        self.effective_magic_attack = self.skill["magic"] + 8  # + Attack style bonus (from agility apparently)
+        self.effective_magic_defence = self.skill['defence'] * 0.3 + self.skill['magic'] * 0.7 + 9
+        spell_hit = 0  # TODO:spell_hit
+        self.magic_evasion = self.effective_magic_defence * (self.magic_defence_bonus + 64)  # * Potion and prayer
+        self.magic_accuracy = self.effective_magic_attack * (self.magic_bonus + 64)  # * Potion and prayer
+        self.magic_max_hit = spell_hit * (1 + (self.skill['magic'] + 1) / 200 *
+                                          (1 + self.magic_bonus / 100))  # * Potion and prayer
+        if self.attack_type == 'magic':
+            if self.magic_accuracy < self.mob_stat['evasion']['magic']:
+                self.hit_chance = 0.5 * self.magic_accuracy / self.mob_stat['evasion']['magic']
+            else:
+                self.hit_chance = 1 - 0.5 * self.mob_stat['evasion']['magic'] / self.magic_accuracy
+            if self.mob_stat['accuracy'] < self.magic_evasion:
+                self.mob_hit_chance = 0.5 * self.mob_stat['accuracy'] / self.magic_evasion
+            else:
+                self.mob_hit_chance = 1 - 0.5 * self.magic_evasion / self.mob_stat['accuracy']
+            if self.mob_attack_type == 'melee':
+                self.effective_damage_reduction = self.damage_reduction * 1.25
+                self.magic_max_hit = self.magic_max_hit * 1.1
+            elif self.mob_attack_type == 'ranged':
+                self.effective_damage_reduction = self.damage_reduction * 0.5
+                self.magic_max_hit = self.magic_max_hit * 0.9
 
     def image_gen_player(self):
         W, H = (700, 800)
@@ -136,19 +210,20 @@ class Combat_Handler:
         im = round_rectangle((290, 550), 10, (219, 222, 225), '')
         img.paste(im, (360, 50), im)
         d.text((460, 60), '属性:', fill="black", font=ImageFont.truetype(font_path, 30))
+        temp = ''
         if self.attack_type == 'melee':
             temp = f'近战类型: {style_dict[self.melee_style]}\n'
-        else:
-            temp = ''
+        elif self.attack_type == 'ranged':
+            temp = f'远程类型: {style_dict[self.ranged_style]}\n'
         msg = f'''伤害: {round(self.min_hit)}-{round(self.max_hit)}
 命中几率: {round(self.hit_chance * 100)}%
 命中评分: {self.accuracy_rating}
 伤害减免: {round(self.damage_reduction * 100)}%
 伤害类型: {attack_dict[self.attack_type]}
 {temp}
-近战闪避评分: {self.melee_evasion}
-远程闪避评分: {self.ranged_evasion}
-魔法闪避评分: {self.magic_evasion}
+近战闪避评分: {round(self.melee_evasion)}
+远程闪避评分: {round(self.ranged_evasion)}
+魔法闪避评分: {round(self.magic_evasion)}
 
 祝福点数: Place holder
 启用祝福: Place holder'''
@@ -164,9 +239,47 @@ class Combat_Handler:
         # ================================================================= #
         Health_bar = progressBar((210, 106, 92), (48, 199, 141), 0, 0, 600, 15, self.mob_hp / self.mob_max_hp)
         img.paste(Health_bar, (50, 17), Health_bar)
-        msg = f"{self.hp}/{self.max_hp} HP"
+        msg = f"{self.mob_hp}/{self.mob_max_hp} HP"
         w, h = d.textsize(msg, ImageFont.truetype(font_path, 15))
         d.text(((W - w) / 2 + 10, 35), msg, fill="black", font=ImageFont.truetype(font_path, 10))
+        # ================================================================= #
+        im = round_rectangle((600, 390), 10, (219, 222, 225), '')
+        img.paste(im, (50, 50), im)
+        msg_list = [(f'icons/{self.mob_location[0]}/{self.mob_location[1]}.png', self.mob_location[2]),
+                    ('icons/combat/combat.png', self.mob_stat['combat_level']),
+                    ('icons/skill/atta.png', self.mob_stat['skill']['atk']),
+                    ('icons/skill/stre.png', self.mob_stat['skill']['str']),
+                    ('icons/skill/defe.png', self.mob_stat['skill']['def']),
+                    ('icons/skill/rang.png', self.mob_stat['skill']['rag']),
+                    ('icons/skill/magi.png', self.mob_stat['skill']['mag'])]
+        temp = 70
+        for path, value in msg_list:
+            im = Image.open(os.path.join(BASE[0], path)).resize((40, 40), Image.ANTIALIAS).convert("RGBA")
+            img.paste(im, (70, temp), im)
+            d.text((120, temp + 20), str(value), fill="black", font=ImageFont.truetype(font_path, 20))
+            temp += 50
+        # ================================================================= #
+        im = Image.open(os.path.join(BASE[0], f'icons/monster/{self.mob}.png'))
+        im.thumbnail((290, 290), Image.ANTIALIAS)
+        img.paste(im, (290, 130), im)
+        d.text((260, 70), str(self.mob_name), fill="black", font=ImageFont.truetype(font_path, 50))
+        # ================================================================= #
+        im = round_rectangle((290, 300), 10, (219, 222, 225), '')
+        img.paste(im, (50, 450), im)
+        img.paste(im, (360, 450), im)
+        d.text((130, 460), '攻击属性:', fill="black", font=ImageFont.truetype(font_path, 30))
+        d.text((440, 460), '防御属性:', fill="black", font=ImageFont.truetype(font_path, 30))
+        offensive_msg = f'''攻击类型:{attack_dict[self.mob_attack_type]}
+伤害: 1 - {self.mob_stat['max_hit']}
+命中几率: {round(self.mob_hit_chance*100)}%
+命中评分: {self.mob_stat["accuracy"]}'''
+        defensive_msg = f'''近战闪避评分: {self.mob_stat['evasion']['melee']}
+远程闪避评分: {self.mob_stat['evasion']['range']}
+魔法闪避评分: {self.mob_stat['evasion']['magic']}
+伤害减免: {round(self.mob_damage_reduction*100)}%'''
+        d.text((70, 500), offensive_msg, fill="black", font=ImageFont.truetype(font_path, 15))
+        d.text((380, 500), defensive_msg, fill="black", font=ImageFont.truetype(font_path, 15))
+        # ================================================================= #
         return MessageSegment.image(util.pic2b64(img))
 
 
@@ -175,8 +288,4 @@ async def cmd_test(bot: HoshinoBot, ev: CQEvent, args):
     uid = ev['user_id']
     combat_dict[uid] = Combat_Handler(uid, str(args[0]))
     combat = combat_dict[uid]
-    combat.setup_melee('stab')
-    await bot.send(ev,
-                   f'怪物名字:{combat.mob_name},命中几率:{round(combat.hit_chance * 100)}%,怪物命中几率:{round(combat.mob_hit_chance * 100)}%')
-    await bot.send(ev, combat.image_gen_player())
-    await bot.send(ev, combat.image_gen_mob())
+    await bot.send(ev, str(combat.image_gen_player()) + str(combat.image_gen_mob()))
