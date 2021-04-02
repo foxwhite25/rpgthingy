@@ -76,3 +76,13 @@ update itemlist
 set name='草' where ID=158;
 update itemlist
 set desc='一种植物'where ID=158;
+update monsterlist
+set name='兽人骑士' where ID=121;
+update monsterlist
+set name='兽人弓手' where ID=122;
+update monsterlist
+set name='兽人投矛手' where ID=123;
+update monsterlist
+set name='兽人巨人' where ID=124;
+update monsterlist
+set name='兽人将军' where ID=125;
