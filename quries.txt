@@ -1,0 +1,78 @@
+update itemlist
+set name='阿瑞斯的头盔' where ID=713;
+update itemlist
+set name='阿瑞斯的护腿' where ID=714;
+update itemlist
+set name='阿瑞斯的胸甲' where ID=715;
+update itemlist
+set name='阿瑞斯的靴子' where ID=716;
+update itemlist
+set name='阿瑞斯的手套' where ID=717;
+update itemlist
+set name='格拉希亚的头盔' where ID=718;
+update itemlist
+set name='格拉希亚的护腿' where ID=719;
+update itemlist
+set name='格拉希亚的胸甲' where ID=720;
+update itemlist
+set name='格拉希亚的靴子' where ID=721;
+update itemlist
+set name='格拉希亚的手套' where ID=722;
+update itemlist
+set name='泰伦的头盔' where ID=776;
+update itemlist
+set name='泰伦的护腿' where ID=777;
+update itemlist
+set name='泰伦的胸甲' where ID=778;
+update itemlist
+set name='泰伦的靴子' where ID=779;
+update itemlist
+set name='泰伦的手套' where ID=780;
+update itemlist
+set name='瑞格纳的头盔' where ID=781;
+update itemlist
+set name='瑞格纳的护腿' where ID=782;
+update itemlist
+set name='瑞格纳的胸甲' where ID=783;
+update itemlist
+set name='瑞格纳的靴子' where ID=784;
+update itemlist
+set name='瑞格纳的手套' where ID=785;
+update itemlist
+set name='阿瑞斯的卷轴' where ID=788;
+update itemlist
+set name='格拉希亚的卷轴' where ID=789;
+update itemlist
+set name='泰伦的卷轴' where ID=790;
+update itemlist
+set name='瑞格纳的卷轴' where ID=791;
+update itemlist
+set name='阿瑞斯的剑' where ID=798;
+update itemlist
+set name='格拉希亚的剑' where ID=799;
+update itemlist
+set name='泰伦的剑' where ID=800;
+update itemlist
+set name='瑞格纳的剑' where ID=801;
+update itemlist
+set name='断层盾牌' where ID=812;
+update itemlist
+set name='牧师帽' where ID=937;
+update itemlist
+set desc='被动：-1祝福值消耗' where ID=937;
+update itemlist
+set name='全能琵琶' where ID=938;
+update itemlist
+set desc='+250%猎杀获得的GP' where ID=938;
+update itemlist
+set name='真菌宝箱' where ID=939;
+update itemlist
+set name='地狱核心' where ID=940;
+update itemlist
+set desc='合成材料' where ID=940;
+update itemlist
+set name='地狱披风' where ID=941;
+update itemlist
+set name='草' where ID=158;
+update itemlist
+set desc='一种植物'where ID=158;
