@@ -1,5 +1,6 @@
 import base64
 import copy
+import random
 import textwrap
 from io import BytesIO
 from collections import Counter
@@ -42,7 +43,7 @@ def progressBar(bgcolor, color, x, y, w, h, progress):
 
     '''PROGRESS'''
     if progress <= 0:
-        progress = 0.01
+        return im
     if progress > 1:
         progress = 1
     if progress == 1:
@@ -92,7 +93,7 @@ def get_pic(qq):
 
 def cal_average(di):
     sum_num = 0
-    for name,t in di.items():
+    for name, t in di.items():
         sum_num = sum_num + t
     avg = sum_num / len(di)
     return avg
@@ -168,6 +169,9 @@ wood = [{'id': '0', 'level': '1', 'exp': '10', 'time': '3'}, {'id': '1', 'level'
 gem = [{'id': "128", 'weight': 0.5}, {'id': "129", 'weight': 0.175}, {'id': "130", 'weight': 0.175},
        {'id': "131", 'weight': 0.1},
        {'id': "132", 'weight': 0.05}]
+auto_eat = [{'name': '自动进食-MK.I', 'threshold': 0.2, 'efficiency': 0.6, 'max_heal': 0.4, 'price': 1000000},
+            {'name': '自动进食-MK.II', 'threshold': 0.3, 'efficiency': 0.8, 'max_heal': 0.6, 'price': 5000000},
+            {'name': '自动进食-MK.III', 'threshold': 0.4, 'efficiency': 1, 'max_heal': 0.8, 'price': 20000000}]
 exp = {}
 exp_delta = {}
 for n in range(1, 100):
@@ -209,7 +213,8 @@ def get_skill_level(x):
 def base_combat_level(uid):
     skill = db.get_player_skill(uid)[1]
     skill = json.loads(skill)
-    return (get_skill_level(skill["defence"]) + get_skill_level(skill["hitpoints"]) + get_skill_level(skill["prayer"]) / 2) * 0.25
+    return (get_skill_level(skill["defence"]) + get_skill_level(skill["hitpoints"]) + get_skill_level(
+        skill["prayer"]) / 2) * 0.25
 
 
 def melee_combat_level(uid):
@@ -1262,7 +1267,8 @@ def shop(uid):
                 fire_level = a
         fire_image = Image.open(os.path.join(__BASE[0], f'icons/placeholder.png')).resize((100, 100), Image.ANTIALIAS)
         c.append((fire_level, fire_image))
-    size = (len(store['gloves']) + len(shop_list) + len(c)) * 120 + 540
+    battle_list = battle_shop(uid)
+    size = (len(store['gloves']) + len(shop_list) + len(c) + len(battle_list)) * 120 + 540
     img = Image.new('RGBA', (900, size), (255, 0, 0, 0))
     im = Image.open(os.path.join(__BASE[0], 'icons/skill/shop.png'))
     im = im.resize((340, 340), Image.ANTIALIAS)
@@ -1302,7 +1308,6 @@ def shop(uid):
         d.text((110, 420 + a * 120), msg, font=fnt, fill=(0, 0, 0))
         a += 1
     for sk, image in c:
-        print(sk)
         im = image
         img.paste(im, (0, 380 + a * 120), im)
         d.text((110, 380 + a * 120), f"{sk[1]} ID:{sk[0]}", font=fnt, fill=(0, 0, 0))
@@ -1313,6 +1318,11 @@ def shop(uid):
         msg = f'需求: GP:{co} 等级:{sk[2]}'
         d.text((110, 420 + a * 120), msg, font=fnt, fill=(0, 0, 0))
         a += 1
+    for each in battle_list:
+        im = Image.open(os.path.join(__BASE[0], each['icon'])).resize((100, 100), Image.ANTIALIAS).convert("RGBA")
+        img.paste(im, (0, 380 + a * 120), im)
+        d.text((110, 380 + a * 120), each['name'], font=fnt, fill=(0, 0, 0))
+        d.text((110, 420 + a * 120), each['desc'], font=fnt, fill=(0, 0, 0))
     im = Image.new('RGB', (1000, size - 100), (0, 0, 0, 0))
     im2 = Image.new('RGB', (950, size - 150), (255, 255, 255))
     im.convert("RGBA")
@@ -1345,7 +1355,7 @@ def add_two_inv(inv1, inv2):
     return dict(Counter(inv1) + Counter(inv2))
 
 
-def armour(uid,frame=True):
+def armour(uid, frame=True):
     img = Image.new('RGBA', (900, 1800), (255, 0, 0, 0))
     equipment = json.loads(db.get_player_inv(uid)[2])
     if not equipment['helmet']:
@@ -1427,12 +1437,12 @@ def armour(uid,frame=True):
 
 
 def get_armor_icon(url):
-    img = Image.open(os.path.join(__BASE[0], url)).resize((240, 240),Image.ANTIALIAS)
+    img = Image.open(os.path.join(__BASE[0], url)).resize((240, 240), Image.ANTIALIAS)
     im_back = round_rectangle((280, 280,), 30, 'black', '')
-    im_front = round_rectangle((260, 260,), 30, (249,249,250), '')
-    im_back.paste(im_front, (10,10), im_front)
+    im_front = round_rectangle((260, 260,), 30, (249, 249, 250), '')
+    im_back.paste(im_front, (10, 10), im_front)
     try:
-        im_back.paste(img, (20,20), img)
+        im_back.paste(img, (20, 20), img)
     except ValueError:
         img = img.convert("RGBA")
         data = img.getdata()
@@ -1447,3 +1457,23 @@ def get_armor_icon(url):
     return im_back
 
 
+def battle_shop(uid):
+    upgrade = db.get_upgrade(uid)
+    shop_list = []
+    if 'auto_eat' in upgrade:
+        auto_eat_level = auto_eat[upgrade['auto_eat'] + 1]
+    else:
+        auto_eat_level = auto_eat[0]
+    if auto_eat_level != 3:
+        shop_list = [{'icon': 'icons/combat/auto_eat.png',
+                      'name': auto_eat_level['name'],
+                      'desc': f'在战斗有需要的时候自动使用食物  '
+                              f'最低门槛: {round(auto_eat_level["threshold"] * 100)}% \n'
+                              f'效率: {round(auto_eat_level["efficiency"] * 100)}% '
+                              f'最大治疗: {round(auto_eat_level["max_heal"] * 100)}% '
+                              f'价格: {round(auto_eat_level["price"] / 1000000)}M GP'}]
+    return shop_list
+
+
+def decision(probability):
+    return random.random() < probability
