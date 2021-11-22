@@ -133,6 +133,20 @@ class RecordDAO:
                 "UPDATE inventory SET inventory=? WHERE uid=?", (inv2, uid,)
             ).fetchall()
         return r
+    
+    #for combat use
+    def update_player_items(self,uid,inv):
+        inv=json.loads(inv)
+        inv2={}
+        for item,value in inv.items():
+            inv2[item]=value
+        inv2=json.dumps(inv2,indent=4)
+        with self.connect() as conn:
+            r=conn.execute(
+                "UPDATE inventory SET inventory=? WHERE uid=?",(inv2,uid,)
+            ).fetchall()
+        return r
+
 
     def update_player_stat(self, uid, col, value):
         with self.connect() as conn:
@@ -282,6 +296,31 @@ class RecordDAO:
         r = json.loads(r)
         return r
 
+    def get_player_potion(self, uid):
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT potion FROM inventory WHERE uid=?",(uid,)
+            ).fetchall()[0][0]
+        r=json.loads(r)
+        return r
+
+    def update_player_potion(self, uid, potion):
+        potion=json.loads(potion)
+        potion2={}
+        for item, value in potion.items():
+            if value !=0:
+                potion2[item]=value
+        potion2=json.dumps(potion2, indent=4)
+        with self.connect() as conn:
+            r=conn.execute(
+                "UPDATE inventory SET potion=? WHERE uid=?",(potion2,uid,)
+            ).fetchall()
+        return r
+
+    #def get_player_prayer(self,uid):
+
+    #def update_player_prayer(self,uid,prayer):
+
     def ini_player(self, uid, name):
         if not self.is_player_exist(uid):
             skill = {"attack": 0, "strength": 0, "defence": 0, "hitpoints": 1155, "ranged": 0, "magic": 0, "prayer": 0,
@@ -309,6 +348,8 @@ class RecordDAO:
                 {}
             upgrade = {"pickaxe": 0, "axe": 0, "fishing_rod": 0, "cooking_fire": 0}
             charge = {"335": "None", "336": "None", "337": "None", "338": "None", "339": "None"}
+            potion={}
+            prayer={}
             woodcutting, fishing, firemaking, cooking, mining, smithing, thieving, farming, fletching, crafting, runecrafting, herblore = json.dumps(
                 woodcutting, indent=4), json.dumps(fishing, indent=4), json.dumps(firemaking, indent=4), json.dumps(
                 cooking, indent=4), json.dumps(mining, indent=4), json.dumps(smithing, indent=4), json.dumps(thieving,
@@ -321,12 +362,14 @@ class RecordDAO:
             action = json.dumps(action, indent=4)
             upgrade = json.dumps(upgrade, indent=4)
             charge = json.dumps(charge, indent=4)
+            potion=json.dumps(potion,indent=4)
+            prayer=json.dumps(prayer,indent=4)
             with self.connect() as conn:
                 conn.execute("INSERT OR REPLACE INTO skill (uid,skill) VALUES (?,?)", (uid, skill,), )
             with self.connect() as conn:
                 conn.execute(
-                    "INSERT OR REPLACE INTO inventory (uid,inventory,equipment,action,upgrade,charge) VALUES (?,?,?,?,?,?)",
-                    (uid, inventory, equipment, action, upgrade, charge), )
+                    "INSERT OR REPLACE INTO inventory (uid,inventory,equipment,action,upgrade,charge,potion,prayer) VALUES (?,?,?,?,?,?,?,?)",
+                    (uid, inventory, equipment, action, upgrade, charge, potion, prayer), )
             with self.connect() as conn:
                 conn.execute("INSERT OR REPLACE INTO stat (uid,i_slot,coin,name) VALUES (?,?,?,?)",
                              (uid, 12, 0, name,), )
@@ -426,17 +469,24 @@ class dat:
     def get_monster_dict(self):
         di = {}
         with self.connect() as conn:
-            a = conn.execute("SELECT name,monster FROM dungeon").fetchall()
-            b = conn.execute("SELECT name,monster FROM combat").fetchall()
-        for name , dic in a:
+            a = conn.execute("SELECT ID,name,monster FROM dungeon").fetchall()
+            b = conn.execute("SELECT ID,name,monster FROM combat").fetchall()
+        for ID,name, dic in a:
             dic = json.loads(dic)
-            for mob,num in dic.items():
-                di[mob] = name
-        for name, li in b:
+            for mob, num in dic.items():
+                di[mob] = ('dungeon',ID,name)
+        for ID,name, li in b:
             li = json.loads(li)
             for mob in li:
-                di[mob] = name
+                di[mob] = ('combat',ID,name)
         return di
+
+    def get_monster_loot(self,mob):
+        with self.connect() as conn:
+            r= conn.execute(
+                "SELECT loot FROM monsterlist WHERE ID=?",(mob,)
+            ).fetchall()[0][0]
+        return r
 
     def get_skill_mastery(self, skill):
         with self.connect() as conn:
@@ -477,3 +527,46 @@ class dat:
             skillcapes = a
         return {"pickaxe": pickaxe, "axe": axe, "fish": fish, "cook": cook, "gloves": gloves, "shop": shop,
                 "skillcapes": skillcapes}
+
+    def get_spell_cost(self,spellid):
+        with self.connect() as conn:
+            r=conn.execute(
+                "SELECT * FROM spell_collection WHERE ID=?",(spellid,)
+            ).fetchall()[0][0]
+        return json.loads(r)
+    
+    def get_potion_buff(self,potionid):
+        with self.connect() as conn:
+            r=conn.execute(
+                "SELECT stat FROM porion WHERE ID=?",(potionid,)
+            ).fetchall()[0][0]
+        return json.loads(r)
+
+    def get_spell_dmg(self,spellid,spellname):
+        with self.connect() as conn:
+            if(spellid):
+                r=conn.execute(
+                    "SELECT max_dmg FROM spellcollection WHERE ID=?",(spellid,)
+                ).fetchall()
+                return r
+            if(spellname):
+                r=conn.execute(
+                    "SELECT max_dmg FROM spellcollection WHERE name=?",(spellname,)
+                ).fetchall()
+                return r
+        return 0
+
+    def get_all_spells(self):
+        with self.connect() as conn:
+            r=conn.execute(
+                "SELECT ID FROM spellcollection"
+            ).fetchall()
+        return r
+
+    def get_item_effect(self, itemid):
+        with self.connect() as conn:
+            r=conn.execute(
+                "SELECT effect FROM itemlist WHERE ID=?",(itemid,)
+            ).fetchall()
+        return r
+
